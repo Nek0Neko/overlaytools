@@ -24,9 +24,41 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Note: C++ build is skipped due to protobuf version compatibility issues
-      # The C++ executable should be built locally on Windows and added manually
-      # or uploaded as a separate artifact
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Install C++ dependencies via vcpkg
+        run: |
+          cd C:\vcpkg
+          git pull
+          .\bootstrap-vcpkg.bat
+          .\vcpkg integrate install
+          .\vcpkg install protobuf:x64-windows-static nlohmann-json:x64-windows-static
+          echo "VCPKG_ROOT=C:\vcpkg" >> $env:GITHUB_ENV
+
+      - name: Setup include directory and regenerate protobuf
+        shell: bash
+        run: |
+          mkdir -p include
+          cp -r "/c/vcpkg/installed/x64-windows-static/include/google" include/
+          cp -r "/c/vcpkg/installed/x64-windows-static/include/nlohmann" include/
+          cp -r "/c/vcpkg/installed/x64-windows-static/include/absl" include/
+          cp -r "/c/vcpkg/installed/x64-windows-static/include/utf8_range.h" include/ 2>/dev/null || true
+          
+          # Regenerate protobuf files to match installed version
+          PROTOC="/c/vcpkg/installed/x64-windows-static/tools/protobuf/protoc.exe"
+          if [ -f "$PROTOC" ]; then
+            echo "Regenerating protobuf files..."
+            cd src/events
+            "$PROTOC" -I. -I../../include --cpp_out=. events.proto
+          fi
+
+      - name: Restore NuGet packages
+        run: nuget restore ${{ env.SOLUTION_FILE }}
+
+      - name: Build C++ Project
+        run: |
+          msbuild ${{ env.SOLUTION_FILE }} /p:Configuration=${{ env.BUILD_CONFIGURATION }} /p:Platform=${{ env.BUILD_PLATFORM }} /p:VcpkgEnableManifest=false
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -58,20 +90,21 @@ jobs:
         shell: bash
         run: |
           VERSION="${{ steps.version.outputs.version }}"
-          RELEASE_NAME="overlaytools-${VERSION}-frontend"
+          RELEASE_NAME="overlaytools-${VERSION}"
           
           # Create release directory
           mkdir -p "release/${RELEASE_NAME}/htdocs"
           
-          # Note: C++ executables not included - build locally on Windows
-          # Create a README for the package
-          echo "# Overlaytools ${VERSION} - Frontend Package" > "release/${RELEASE_NAME}/BUILD_NOTE.md"
-          echo "" >> "release/${RELEASE_NAME}/BUILD_NOTE.md"
-          echo "This package contains only the frontend files (htdocs)." >> "release/${RELEASE_NAME}/BUILD_NOTE.md"
-          echo "" >> "release/${RELEASE_NAME}/BUILD_NOTE.md"
-          echo "To use this tool, you need to:" >> "release/${RELEASE_NAME}/BUILD_NOTE.md"
-          echo "1. Build apexliveapi_proxy.exe locally using Visual Studio on Windows" >> "release/${RELEASE_NAME}/BUILD_NOTE.md"
-          echo "2. Place the executable in the same directory as the htdocs folder" >> "release/${RELEASE_NAME}/BUILD_NOTE.md"
+          # Copy executables
+          if [ -f "bin/apexliveapi_proxy.exe" ]; then
+            cp "bin/apexliveapi_proxy.exe" "release/${RELEASE_NAME}/"
+            echo "Copied apexliveapi_proxy.exe"
+          fi
+          
+          if [ -f "bin/dump2json.exe" ]; then
+            cp "bin/dump2json.exe" "release/${RELEASE_NAME}/"
+            echo "Copied dump2json.exe"
+          fi
           
           # Copy htdocs files
           cp htdocs/*.html "release/${RELEASE_NAME}/htdocs/" 2>/dev/null || true
