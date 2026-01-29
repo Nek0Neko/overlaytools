@@ -1,4 +1,4 @@
-﻿#include "core_thread.hpp"
+#include "core_thread.hpp"
 
 #include "log.hpp"
 
@@ -60,42 +60,42 @@ namespace app {
 		{"Heal Overflow Amp (Level 3)", WEBAPI_ITEM_AMP_HEAL_OVERFLOW},
 		{"Power Booster Amp (Level 3)", WEBAPI_ITEM_AMP_POWER_BOOSTER},
 
-		/* 日本語 */
+		/* Chinese / 中文 */
 		{(const char*)u8"注射器", WEBAPI_ITEM_SYRINGE},
-		{(const char*)u8"医療キット (Level 2)", WEBAPI_ITEM_MEDKIT},
-		{(const char*)u8"シールドセル", WEBAPI_ITEM_SHIELDCELL},
-		{(const char*)u8"シールドバッテリー (Level 2)", WEBAPI_ITEM_SHIELDBATTERY},
-		{(const char*)u8"フェニックスキット (Level 3)", WEBAPI_ITEM_PHOENIXKIT},
-		{(const char*)u8"アルティメット促進剤 (Level 2)", WEBAPI_ITEM_ULTIMATEACCELERANT},
-		{(const char*)u8"アルティメット促進剤 (Level 3)", WEBAPI_ITEM_ULTIMATEACCELERANT},
-		{(const char*)u8"フラググレネード", WEBAPI_ITEM_FRAGGRENADE},
-		{(const char*)u8"テルミットグレネード", WEBAPI_ITEM_THERMITEGRENADE},
-		{(const char*)u8"アークスター", WEBAPI_ITEM_ARCSTAR},
-		{(const char*)u8"ノックダウンシールド", WEBAPI_ITEM_KNOCKDOWNSHIELD_LV1},
-		{(const char*)u8"ノックダウンシールド (Level 2)", WEBAPI_ITEM_KNOCKDOWNSHIELD_LV2},
-		{(const char*)u8"ノックダウンシールド (Level 3)", WEBAPI_ITEM_KNOCKDOWNSHIELD_LV3},
-		{(const char*)u8"ノックダウンシールド (Level 4)", WEBAPI_ITEM_KNOCKDOWNSHIELD_LV4},
-		{(const char*)u8"バックパック", WEBAPI_ITEM_BACKPACK_LV1},
-		{(const char*)u8"バックパック (Level 2)", WEBAPI_ITEM_BACKPACK_LV2},
-		{(const char*)u8"バックパック (Level 3)", WEBAPI_ITEM_BACKPACK_LV3},
-		{(const char*)u8"バックパック (Level 4)", WEBAPI_ITEM_BACKPACK_LV4},
-		{(const char*)u8"モバイルリスポーンビーコン (Level 2)", WEBAPI_ITEM_MOBILERESPAWNBEACON},
-		{(const char*)u8"ヒートシールド (Level 2)", WEBAPI_ITEM_HEATSHIELD},
-		{(const char*)u8"脱出タワー (Level 2)", WEBAPI_ITEM_EVACTOWER},
-		{(const char*)u8"進化式ボディーシールド", WEBAPI_ITEM_BODYSHIELD_LV1},
-		{(const char*)u8"進化式ボディーシールド (Level 2)", WEBAPI_ITEM_BODYSHIELD_LV2},
-		{(const char*)u8"進化式ボディーシールド (Level 3)", WEBAPI_ITEM_BODYSHIELD_LV3},
-		{(const char*)u8"進化式ボディーシールド (Level 5)", WEBAPI_ITEM_BODYSHIELD_LV5},
-		{(const char*)u8"ボディーシールド", WEBAPI_ITEM_BODYSHIELD_LV1},
-		{(const char*)u8"ボディーシールド (Level 2)", WEBAPI_ITEM_BODYSHIELD_LV2},
-		{(const char*)u8"ボディーシールド (Level 3)", WEBAPI_ITEM_BODYSHIELD_LV3},
-		{(const char*)u8"ボディーシールド (Level 4)", WEBAPI_ITEM_BODYSHIELD_LV4},
-		{(const char*)u8"シールドコア", WEBAPI_ITEM_SHIELDCORE},
-		{(const char*)u8"無限弾薬増幅器 (Level 3)", WEBAPI_ITEM_AMP_INFINITE_AMMO},
-		{(const char*)u8"バッテリー無限増幅器 (Level 3)", WEBAPI_ITEM_AMP_BOTTOMLESS_BATTERIES},
-		{(const char*)u8"オーバーアーマー増幅器 (Level 3)", WEBAPI_ITEM_AMP_OVER_ARMOR},
-		{(const char*)u8"オーバーフロー回復増幅器 (Level 3)", WEBAPI_ITEM_AMP_HEAL_OVERFLOW},
-		{(const char*)u8"パワーブースト増幅器 (Level 3)", WEBAPI_ITEM_AMP_POWER_BOOSTER},
+		{(const char*)u8"医疗箱 (Level 2)", WEBAPI_ITEM_MEDKIT},
+		{(const char*)u8"小电池", WEBAPI_ITEM_SHIELDCELL},
+		{(const char*)u8"大电池 (Level 2)", WEBAPI_ITEM_SHIELDBATTERY},
+		{(const char*)u8"凤凰治疗包 (Level 3)", WEBAPI_ITEM_PHOENIXKIT},
+		{(const char*)u8"绝招加速剂 (Level 2)", WEBAPI_ITEM_ULTIMATEACCELERANT},
+		{(const char*)u8"绝招加速剂 (Level 3)", WEBAPI_ITEM_ULTIMATEACCELERANT},
+		{(const char*)u8"碎片手雷", WEBAPI_ITEM_FRAGGRENADE},
+		{(const char*)u8"铝热剂手雷", WEBAPI_ITEM_THERMITEGRENADE},
+		{(const char*)u8"电弧星", WEBAPI_ITEM_ARCSTAR},
+		{(const char*)u8"击倒护盾", WEBAPI_ITEM_KNOCKDOWNSHIELD_LV1},
+		{(const char*)u8"击倒护盾 (Level 2)", WEBAPI_ITEM_KNOCKDOWNSHIELD_LV2},
+		{(const char*)u8"击倒护盾 (Level 3)", WEBAPI_ITEM_KNOCKDOWNSHIELD_LV3},
+		{(const char*)u8"击倒护盾 (Level 4)", WEBAPI_ITEM_KNOCKDOWNSHIELD_LV4},
+		{(const char*)u8"背包", WEBAPI_ITEM_BACKPACK_LV1},
+		{(const char*)u8"背包 (Level 2)", WEBAPI_ITEM_BACKPACK_LV2},
+		{(const char*)u8"背包 (Level 3)", WEBAPI_ITEM_BACKPACK_LV3},
+		{(const char*)u8"背包 (Level 4)", WEBAPI_ITEM_BACKPACK_LV4},
+		{(const char*)u8"移动重生信标 (Level 2)", WEBAPI_ITEM_MOBILERESPAWNBEACON},
+		{(const char*)u8"热防护罩 (Level 2)", WEBAPI_ITEM_HEATSHIELD},
+		{(const char*)u8"撤离塔 (Level 2)", WEBAPI_ITEM_EVACTOWER},
+		{(const char*)u8"进化护盾", WEBAPI_ITEM_BODYSHIELD_LV1},
+		{(const char*)u8"进化护盾 (Level 2)", WEBAPI_ITEM_BODYSHIELD_LV2},
+		{(const char*)u8"进化护盾 (Level 3)", WEBAPI_ITEM_BODYSHIELD_LV3},
+		{(const char*)u8"进化护盾 (Level 5)", WEBAPI_ITEM_BODYSHIELD_LV5},
+		{(const char*)u8"身体护盾", WEBAPI_ITEM_BODYSHIELD_LV1},
+		{(const char*)u8"身体护盾 (Level 2)", WEBAPI_ITEM_BODYSHIELD_LV2},
+		{(const char*)u8"身体护盾 (Level 3)", WEBAPI_ITEM_BODYSHIELD_LV3},
+		{(const char*)u8"身体护盾 (Level 4)", WEBAPI_ITEM_BODYSHIELD_LV4},
+		{(const char*)u8"护盾核心", WEBAPI_ITEM_SHIELDCORE},
+		{(const char*)u8"无限弹药增幅器 (Level 3)", WEBAPI_ITEM_AMP_INFINITE_AMMO},
+		{(const char*)u8"无底电池增幅器 (Level 3)", WEBAPI_ITEM_AMP_BOTTOMLESS_BATTERIES},
+		{(const char*)u8"超级护甲增幅器 (Level 3)", WEBAPI_ITEM_AMP_OVER_ARMOR},
+		{(const char*)u8"治疗溢出增幅器 (Level 3)", WEBAPI_ITEM_AMP_HEAL_OVERFLOW},
+		{(const char*)u8"能量提升增幅器 (Level 3)", WEBAPI_ITEM_AMP_POWER_BOOSTER},
 	};
 
 	uint8_t string_to_itemid(const std::string& _str)
@@ -143,9 +143,9 @@ namespace app {
 	void core_thread::sendto_liveapi_queuecheck()
 	{
 		uint64_t current = get_millis();
-		if ((!liveapi_available_) && current < liveapi_lastsend_ + 2000) return; // timeout
+		if ((!liveapi_available_) && current < liveapi_lastsend_ + core_constants::LIVEAPI_SEND_TIMEOUT_MS) return;
 		liveapi_available_ = true;
-		if (current < liveapi_lastresponse_ + 500) return; // 少なくとも500ms待つ
+		if (current < liveapi_lastresponse_ + core_constants::LIVEAPI_RESPONSE_INTERVAL_MS) return;
 		if (liveapi_queue_.empty()) return;
 		ctx_buffer_t data = std::move(liveapi_queue_.front());
 		liveapi_queue_.pop();
@@ -225,7 +225,7 @@ namespace app {
 			http_get_.get_event_wq()
 		};
 
-		// 初回のデータロード
+		// Initial data load / 初始数据加载
 		local_.get_observer(INVALID_SOCKET, 0);
 		
 
@@ -241,7 +241,7 @@ namespace app {
 			}
 			else if (id == WAIT_OBJECT_0 + 1)
 			{
-				// liveapiからデータ到達
+				// Data received from LiveAPI / 从LiveAPI接收数据
 				auto q = ctx_.pull_rq(CTX_LIVEAPI);
 				if (q)
 				{
@@ -258,7 +258,7 @@ namespace app {
 			}
 			else if (id == WAIT_OBJECT_0 + 2)
 			{
-				// ブラウザからデータ到達
+				// Data received from browser / 从浏览器接收数据
 				auto q = ctx_.pull_rq(CTX_WEBAPI);
 				if (q)
 				{
@@ -276,7 +276,7 @@ namespace app {
 			else if (id == WAIT_OBJECT_0 + 3)
 			{
 
-				// ローカルスレッドからデータ到達
+				// Data received from local thread / 从本地线程接收数据
 				auto q = local_.pull_wq();
 				while (q.size() > 0)
 				{
@@ -290,7 +290,7 @@ namespace app {
 			}
 			else if (id == WAIT_OBJECT_0 + 4)
 			{
-				// main_windowからメッセージ到達
+				// Message received from main_window / 从main_window接收消息
 				auto q = pull_messages();
 				while (q.size() > 0)
 				{
@@ -327,7 +327,7 @@ namespace app {
 			}
 			else if (id == WAIT_OBJECT_0 + 8)
 			{
-				// HTTP_GETの返答
+				// HTTP_GET response / HTTP_GET响应
 				auto q = http_get_.pull_wq();
 				while (q.size() > 0)
 				{
@@ -355,7 +355,7 @@ namespace app {
 		bool result = false;
 		auto socket = _data->first;
 
-		// メッセージとして処理
+		// Process as message / 作为消息处理
 		if (!result)
 		{
 			rtech::liveapi::LiveAPIEvent ev;
@@ -365,10 +365,10 @@ namespace app {
 				if (ev.has_gamemessage())
 				{
 
-					// メッセージの場合は書き込む
+					// Write if it's a message / 如果是消息则写入
 					proc_liveapi_any(ev.gamemessage());
 
-					// ファイルに書き込む
+					// Write to file / 写入文件
 					filedump_.push(std::move(_data->second));
 
 					return;
@@ -401,7 +401,7 @@ namespace app {
 			return;
 		}
 
-		// sequence番号の読み出し
+		// Read sequence number / 读取序列号
 		if (wdata.size() == 0)
 		{
 			log(LOG_CORE, L"Error: sended data size is zero.");
@@ -411,9 +411,14 @@ namespace app {
 		{
 			sequence = wdata.get_uint32(0);
 		}
+		catch (const std::exception& e)
+		{
+			log(LOG_CORE, L"Error: cannot parse sequence: %s", s_to_ws(e.what()));
+			return;
+		}
 		catch (...)
 		{
-			log(LOG_CORE, L"Error: cannot parse sequence.");
+			log(LOG_CORE, L"Error: cannot parse sequence (unknown exception).");
 			return;
 		}
 
@@ -431,9 +436,13 @@ namespace app {
 			{
 				reply_webapi_get_version(socket, sequence);
 			}
+			catch (const std::exception& e)
+			{
+				log(LOG_CORE, L"Error: WEBAPI_GET_VERSION data parse failed: %s", s_to_ws(e.what()));
+			}
 			catch (...)
 			{
-				log(LOG_CORE, L"Error: data parse failed.");
+				log(LOG_CORE, L"Error: WEBAPI_GET_VERSION data parse failed (unknown exception).");
 			}
 			break;
 		}
@@ -1209,7 +1218,7 @@ namespace app {
 
 			bool ishash = (wdata.size() == 3 && wdata.get_bool(2));
 
-			// カメラ設定
+			// Camera settings / 相机设置
 			try
 			{
 				if (ishash)
@@ -1348,10 +1357,10 @@ namespace app {
 
 				if (game_.matchendreason == "WinnerDetermined")
 				{
-					// リザルトを保存する
+					// Save result / 保存结果
 					save_result();
 
-					// dumpファイルを一旦リセット
+					// Reset dump file / 重置dump文件
 					filedump_.reset();
 				}
 			}
@@ -1530,7 +1539,7 @@ namespace app {
 			api::Response p;
 			if (!_any.UnpackTo(&p)) return;
 
-			// 溜まってるメッセージを確認
+			// Check pending messages / 检查待处理消息
 			liveapi_available_ = true;
 			liveapi_lastresponse_ = get_millis();
 			sendto_liveapi_queuecheck();
@@ -1733,7 +1742,7 @@ namespace app {
 					}
 				}
 
-				// 既に送信しているユーザー分のアイテムを更新
+				// Update items for already sent users / 更新已发送用户的物品
 				for (size_t teamid = 0; teamid < game_.teams.size(); ++teamid)
 				{
 					for (size_t squadindex = 0; squadindex < game_.teams.at(teamid).players.size(); ++squadindex)
@@ -1785,10 +1794,10 @@ namespace app {
 
 				if (game_.matchendreason == "WinnerDetermined")
 				{
-					// リザルトを保存する
+					// Save result / 保存结果
 					save_result();
 
-					// dumpファイルを一旦リセット
+					// Reset dump file / 重置dump文件
 					filedump_.reset();
 				}
 			}
@@ -1798,7 +1807,7 @@ namespace app {
 				{
 					game_.end = get_millis();
 
-					// dumpファイルを一旦リセット
+					// Reset dump file / 重置dump文件
 					filedump_.reset();
 				}
 			}
@@ -1979,7 +1988,7 @@ namespace app {
 						const uint8_t victim_squadindex = get_squadindex(p.victim());
 						if (teamid != victim_teamid || squadindex != victim_squadindex)
 						{
-							// 自分自身からのダメージを除外
+							// Exclude damage from self / 排除自身伤害
 							proc_damage_dealt(teamid, squadindex, p.damageinflicted());
 							send_webapi_extended_damage(teamid, squadindex, victim_teamid, victim_squadindex, p.weapon(), p.damageinflicted());
 						}
@@ -2107,7 +2116,7 @@ namespace app {
 		}
 		else if (_any.Is<api::RevenantForgedShadowDamaged>())
 		{
-			// 通常のダメージと同様に扱う
+			// Handle same as normal damage / 与普通伤害相同处理
 			api::RevenantForgedShadowDamaged p;
 			if (!_any.UnpackTo(&p)) return;
 
@@ -2125,7 +2134,7 @@ namespace app {
 						const uint8_t victim_squadindex = get_squadindex(p.victim());
 						if (teamid != victim_teamid || squadindex != victim_squadindex)
 						{
-							// 自分自身からのダメージを除外
+							// Exclude damage from self / 排除自身伤害
 							proc_damage_dealt(teamid, squadindex, p.damageinflicted());
 							send_webapi_extended_damage(teamid, squadindex, victim_teamid, victim_squadindex, "", p.damageinflicted());
 						}
@@ -2146,7 +2155,7 @@ namespace app {
 		}
 		else if (_any.Is<api::GibraltarShieldAbsorbed>())
 		{
-			// 通常のダメージと同様に扱う
+			// Handle same as normal damage / 与普通伤害相同处理
 			api::GibraltarShieldAbsorbed p;
 			if (!_any.UnpackTo(&p)) return;
 
@@ -2164,7 +2173,7 @@ namespace app {
 						const uint8_t victim_squadindex = get_squadindex(p.victim());
 						if (teamid != victim_teamid || squadindex != victim_squadindex)
 						{
-							// 自分自身からのダメージを除外
+							// Exclude damage from self / 排除自身伤害
 							proc_damage_dealt(teamid, squadindex, p.damageinflicted());
 							send_webapi_extended_damage(teamid, squadindex, victim_teamid, victim_squadindex, "", p.damageinflicted());
 						}
@@ -2306,7 +2315,7 @@ namespace app {
 			bool skip = false;
 			if (item == WEBAPI_ITEM_SHIELDBATTERY)
 			{
-				// バッテリー使用の際に例外処理
+				// Exception handling when using battery / 使用电池时的异常处理
 				auto& player = game_.teams.at(teamid).players.at(squadindex);
 				if (player.items.amp == WEBAPI_ITEM_AMP_TYPE_BOTTOMLESS_BATTERIES)
 				{
@@ -2584,7 +2593,7 @@ namespace app {
 		if (sdata.append(_observer_teamid) && sdata.append(_observer_squadindex) &&
 			sdata.append(_teamid) && sdata.append(_playerid) && sdata.append(_owned))
 		{
-			// データ送信
+			// Send data / 发送数据
 			sendto_webapi(std::move(sdata.buffer_));
 		}
 	}
@@ -2594,7 +2603,7 @@ namespace app {
 		send_webapi_data sdata(WEBAPI_EVENT_INIT_CAMERA);
 		if (sdata.append(_teamid) && sdata.append(_playerid))
 		{
-			// データ送信
+			// Send data / 发送数据
 			sendto_webapi(std::move(sdata.buffer_));
 		}
 	}
@@ -2605,7 +2614,7 @@ namespace app {
 		if (sdata.append(_timestamp) && sdata.append(_x) && sdata.append(_y) &&
 			sdata.append(_current) && sdata.append(_end) && sdata.append(_duration) && sdata.append(_stage))
 		{
-			// データ送信
+			// Send data / 发送数据
 			sendto_webapi(std::move(sdata.buffer_));
 		}
 	}
@@ -3413,16 +3422,16 @@ namespace app {
 	//---------------------------------------------------------------------------------
 	void core_thread::proc_player(const rtech::liveapi::Player& _player)
 	{
-		// チーム数修正
+		// Adjust team count / 调整队伍数量
 		uint8_t teamid = _player.teamid();
 		if (game_.teams.size() <= teamid) game_.teams.resize(teamid + 1);
 		auto& team = game_.teams.at(teamid);
 		
-		// プレイヤー数修正
+		// Adjust player count / 调整玩家数量
 		uint8_t squadindex = get_squadindex(_player);
 		if (squadindex == 0xff)
 		{
-			// indexが取得できなかった場合は追加する
+			// Add if index not found / 如果找不到索引则添加
 			team.players.push_back({});
 			squadindex = team.players.size() - 1;
 		}
@@ -3430,27 +3439,27 @@ namespace app {
 
 		if (teamid == 0)
 		{
-			// 未アサイン、Worldなど
+			// Unassigned, World, etc. / 未分配、World等
 		}
 		else if (teamid >= 1)
 		{
-			// オブザーバー以上
+			// Observer or above / 观察者及以上
 
 			// ID
 			if (_player.nucleushash() != player.id)
 			{
 				if (player.id == "")
 				{
-					// 空だった場合
+					// If empty / 如果为空
 					player.id = _player.nucleushash();
 					send_webapi_player_id(INVALID_SOCKET, teamid, squadindex, player.id);
 
-					// オブザーバーだった場合
+					// If observer / 如果是观察者
 					if (teamid == 1)
 					{
 						if (!camera_.contains(player.id))
 						{
-							camera_[player.id] = {2, 0}; // チーム1の1人目を初期値として指定
+							camera_[player.id] = {2, 0}; // Set first player of team 1 as default / 将队伍1的第一个玩家设为默认
 						}
 					}
 				}
@@ -3466,9 +3475,9 @@ namespace app {
 		
 		if (teamid >= 2)
 		{
-			// プレイヤー
+			// Player / 玩家
 
-			// 初回かどうか
+			// Is first time / 是否首次
 			bool first = false;
 
 			// 名前
@@ -3478,7 +3487,7 @@ namespace app {
 				send_webapi_player_name(INVALID_SOCKET, teamid, squadindex, player.name);
 			}
 
-			// キャラクター
+			// Character / 角色
 			if (_player.character() != player.character)
 			{
 				player.character = _player.character();
@@ -3527,7 +3536,7 @@ namespace app {
 				}
 			}
 
-			// 初回は現在のitem数を全部送る
+			// Send all current item counts on first time / 首次发送所有当前物品数量
 			if (first)
 			{
 				player.items = game_.loadout.items;
@@ -3550,7 +3559,7 @@ namespace app {
 				send_webapi_player_items(INVALID_SOCKET, teamid, squadindex, WEBAPI_ITEM_AMP, player.items.amp);
 			}
 
-			// チーム名
+			// Team name / 队伍名称
 			{
 				if (team.name != _player.teamname())
 				{
@@ -3572,7 +3581,7 @@ namespace app {
 			send_webapi_player_connected(INVALID_SOCKET, _teamid, _squadindex);
 		}
 
-		// 接続によりチーム数がaliveに変更がないか確認する
+		// Check if team count changed to alive due to connection / 检查连接是否改变了存活队伍数
 		uint32_t alive = 0;
 		for (size_t i = 2; i < game_.teams.size(); ++i)
 		{
@@ -3580,7 +3589,7 @@ namespace app {
 			if (t.players.size() > 0 && !t.eliminated) ++alive;
 		}
 
-		// 全部いなくなった場合は何もしない
+		// Do nothing if all gone / 如果全部离开则不做任何事
 		if (alive == 0) return;
 
 		for (size_t i = 2; i < game_.teams.size(); ++i)
@@ -3816,7 +3825,7 @@ namespace app {
 			send_webapi_player_state(INVALID_SOCKET, _teamid, _squadindex, player.state);
 		}
 
-		// アイテムの初期化
+		// Initialize items / 初始化物品
 		{
 			const auto& items = game_.loadout.items;
 
@@ -3884,7 +3893,7 @@ namespace app {
 
 	void core_thread::proc_squad_eliminated(uint8_t _teamid)
 	{
-		// 生存チーム数の確認
+		// Check surviving team count / 检查存活队伍数量
 		uint32_t alive = 0;
 		for (size_t i = 2; i < game_.teams.size(); ++i)
 		{
@@ -3904,7 +3913,7 @@ namespace app {
 				}
 				else
 				{
-					// 生存チームの順位を一つ上げる
+					// Increase rank of surviving team by one / 将存活队伍的排名提升一位
 					if (alive > 1)
 					{
 						t.place = alive - 1;
@@ -3940,7 +3949,7 @@ namespace app {
 
 	void core_thread::livedata_get_teams(SOCKET _sock, uint32_t _sequence)
 	{
-		// observerも送る
+		// Also send to observers / 也发送给观察者
 		for (size_t i = 1; i < game_.teams.size(); ++i)
 		{
 			const auto& t = game_.teams.at(i);
@@ -3950,7 +3959,7 @@ namespace app {
 			for (size_t j = 0; j < t.players.size(); ++j)
 			{
 				const auto& p = t.players.at(j);
-				// IDだけ先に送る
+				// Send ID first / 先发送ID
 				if (p.id != "")
 				{
 					send_webapi_player_id(_sock, i, j, p.id);
@@ -3968,7 +3977,7 @@ namespace app {
 		for (size_t i = 0; i < t.players.size(); ++i)
 		{
 			const auto& p = t.players.at(i);
-			// ID以外を送る
+			// Send everything except ID / 发送除ID以外的数据
 			if (p.disconnected) send_webapi_player_disconnected(_sock, _teamid, i, p.canreconnect);
 			send_webapi_player_name(_sock, _teamid, i, p.name);
 			send_webapi_player_character(_sock, _teamid, i, p.character);
@@ -3982,13 +3991,13 @@ namespace app {
 			send_webapi_player_killed_count(_sock, _teamid, i, p.killed);
 			send_webapi_player_weapon(_sock, _teamid, i, p.weapon);
 
-			// パーク情報
+			// Perk info / Perk信息
 			for (const auto& [level, perk] : p.perks)
 			{
 				send_webapi_player_perk(_sock, _teamid, i, level, perk.name);
 			}
 
-			// アイテム
+			// Items / 物品
 			send_webapi_player_items(_sock, _teamid, i, WEBAPI_ITEM_SYRINGE, p.items.syringe);
 			send_webapi_player_items(_sock, _teamid, i, WEBAPI_ITEM_MEDKIT, p.items.medkit);
 			send_webapi_player_items(_sock, _teamid, i, WEBAPI_ITEM_SHIELDCELL, p.items.shield_cell);
@@ -4007,7 +4016,7 @@ namespace app {
 			send_webapi_player_items(_sock, _teamid, i, WEBAPI_ITEM_SHIELDCORE, p.items.shieldcore);
 			send_webapi_player_items(_sock, _teamid, i, WEBAPI_ITEM_AMP, p.items.amp);
 
-			// キャラクター選択済み情報
+			// Character selected info / 角色选择信息
 			if (p.characterselected)
 			{
 				send_webapi_extended_characterselected(_sock, _teamid, i);
@@ -4046,10 +4055,10 @@ namespace app {
 	{
 		if (game_.start == 0)
 		{
-			// クリア
+			// Clear / 清除
 			clear_livedata();
 
-			// ダンプファイルリセット
+			// Reset dump file / 重置dump文件
 			filedump_.reset();
 
 			send_webapi_clear_livedata(); // 試合開始
@@ -4058,10 +4067,10 @@ namespace app {
 		{
 			if (game_.end > 0)
 			{
-				// クリア
+				// Clear / 清除
 				clear_livedata();
 
-				// ダンプファイルリセット
+				// Reset dump file / 重置dump文件
 				filedump_.reset();
 
 				send_webapi_clear_livedata(); // 試合開始
@@ -4095,7 +4104,7 @@ namespace app {
 	//---------------------------------------------------------------------------------
 	void core_thread::save_result()
 	{
-		// リザルト用構造体に入れる
+		// Put in result structure / 放入结果结构体
 		auto r = std::make_unique<livedata::result>();
 
 		r->start = game_.start;
@@ -4244,7 +4253,7 @@ namespace app {
 			return false;
 		}
 
-		// イベント作成
+		// Create events / 创建事件
 		event_close_ = ::CreateEventW(NULL, FALSE, FALSE, NULL);
 		if (event_close_ == NULL)
 		{
@@ -4264,7 +4273,7 @@ namespace app {
 			return false;
 		}
 
-		// スレッド起動
+		// Start thread / 启动线程
 		thread_ = ::CreateThread(NULL, 0, proc_common, this, 0, NULL);
 		return thread_ != NULL;
 	}
@@ -4277,7 +4286,7 @@ namespace app {
 		filedump_.stop();
 		http_get_.stop();
 
-		// スレッドの停止
+		// Stop thread / 停止线程
 		if (thread_ != NULL)
 		{
 			::SetEvent(event_close_);

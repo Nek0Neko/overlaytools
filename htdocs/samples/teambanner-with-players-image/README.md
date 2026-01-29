@@ -1,23 +1,26 @@
 # teambanner-with-players-image
 
-プレイヤーのイメージを定義して、カメラ切替に連動して表示するサンプル。
-チームバナーとして表示する。
+Sample for defining player images that are displayed in sync with camera switching, shown as a team banner.
 
-![image](https://github.com/user-attachments/assets/35f41e13-da66-4a0d-964e-c2eb9538712d)
+定义玩家图像的示例，这些图像随相机切换同步显示，作为队伍横幅显示。
 
-## 使い方
+![image](https://github.com/user-attachments/assets/00000000-0000-0000-0000-000000000000)
 
-1. `custom-overlays`内のファイルを`htdocs/custom-overlays`フォルダにコピーする。
-2. `player-images`フォルダを`htdocs`フォルダにコピーする。
-3. `htdocs/player-images`フォルダにプレイヤー用の画像を配置する。
-4. `htdocs/custom-overlays/teambanner-append.css`にカスタムマッチ参加者分の名前・画像の紐づけを行う。(画像が定義されていない場合、`player-images/player-default.png`が表示される)
+## Usage / 使用方法
 
-### 名前と画像の定義(teambanner-append.css)
+1. Copy files from `custom-overlays` to `htdocs/custom-overlays` folder. / 将 `custom-overlays` 中的文件复制到 `htdocs/custom-overlays` 文件夹。
+2. Copy `player-images` folder to `htdocs` folder. / 将 `player-images` 文件夹复制到 `htdocs` 文件夹。
+3. Place player images in `htdocs/player-images` folder. / 在 `htdocs/player-images` 文件夹中放置玩家图像。
+4. Configure player name/image mapping in `htdocs/custom-overlays/teambanner-append.css`. (If no image is defined, `player-images/player-default.png` will be displayed) / 在 `htdocs/custom-overlays/teambanner-append.css` 中配置玩家名称/图像映射。（如果未定义图像，将显示 `player-images/player-default.png`）
 
-`testplayer01`という名前のプレイヤー用に`player-images/player-01.png`の画像を表示する例
+### Name and Image Definition (teambanner-append.css) / 名称和图像定义
+
+Example of displaying `player-images/player-01.png` for a player named `testplayer01`:
+
+为名为 `testplayer01` 的玩家显示 `player-images/player-01.png` 图像的示例：
 
 ```css
-.playerimage[data-cameraplayer-name="testplayer01"] {
+.playerimage[data-camera-player-name="testplayer01"] {
     background-image: url('player-images/player-01.png');
 }
 ```

@@ -1,7 +1,7 @@
 * {
     margin: 0;
     padding: 0;
-    font-family: 'Consolas', 'Meiryo UI', 'メイリオ', monospace;
+    font-family: 'Consolas', 'Microsoft YaHei', 'Segoe UI', monospace;
 }
 html {
     width: 100%;
@@ -12,7 +12,7 @@ body {
     grid-template-columns: 20em auto;
 }
 
-/* サイドバー関係 */
+/* Sidebar / 侧边栏 */
 #sidebar {
     box-sizing: border-box;
 }
@@ -72,7 +72,7 @@ body {
 .en {
     display: none;
 }
-.ja {
+.zh {
     display: none;
 }
 

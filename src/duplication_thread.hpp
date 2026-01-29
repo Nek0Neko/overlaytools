@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "common.hpp"
 
@@ -45,10 +45,10 @@ namespace app {
 		duplication_thread();
 		~duplication_thread();
 
-		// コピー不可
+		// Non-copyable / 禁止拷贝
 		duplication_thread(const duplication_thread&) = delete;
 		duplication_thread& operator = (const duplication_thread&) = delete;
-		// ムーブ不可
+		// Non-movable / 禁止移动
 		duplication_thread(duplication_thread&&) = delete;
 		duplication_thread& operator = (duplication_thread&&) = delete;
 

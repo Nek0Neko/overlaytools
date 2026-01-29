@@ -1,19 +1,19 @@
 export class OverlayBase {
-    /** @type {string} hide()/show()で付与・削除されるクラス名 */
+    /** @type {string} Class name added/removed by hide()/show() / hide()/show()添加/移除的类名 */
     static HIDE_CLASS = "hide";
-    /** @type {string} addForceHide()/removeForceHide()で付与・削除されるクラス名 */
+    /** @type {string} Class name added/removed by addForceHide()/removeForceHide() / addForceHide()/removeForceHide()添加/移除的类名 */
     static FORCEHIDE_CLASS = "forcehide";
-    /** @type {string} baseノードのID */
+    /** @type {string} ID of base node / 基础节点的ID */
     ID;
-    /** @type {string} クラスを設定する際に先頭に付与する文字列 */
+    /** @type {string} Prefix string added when setting class / 设置类时添加的前缀字符串 */
     PREFIX;
-    /** @type {HTMLElement[]} オーバーレイに関連するノード一覧 */
+    /** @type {HTMLElement[]} List of nodes related to overlay / 与叠加层相关的节点列表 */
     nodes;
     /**
-     * コンストラクタ
-     * @param {string} id baseノードのID
-     * @param {string} prefix クラスを追加する際のPREFIX
-     * @param {HTMLElement} root baseノードの追加先
+     * Constructor / 构造函数
+     * @param {string} id ID of base node / 基础节点的ID
+     * @param {string} prefix PREFIX when adding class / 添加类时的前缀
+     * @param {HTMLElement} root Destination to add base node / 添加基础节点的目标位置
      */
     constructor(id, prefix, root = document.body) {
         this.ID = id;
@@ -31,72 +31,72 @@ export class OverlayBase {
     }
 
     /**
-     * baseノードにノードを追加する
-     * @param {string} name クラス名に含まれる文字列
-     * @param {string} tag 追加するノードのタグ名(default:div)
+     * Add node to base node / 向基础节点添加节点
+     * @param {string} name String included in class name / 类名中包含的字符串
+     * @param {string} tag Tag name of node to add (default:div) / 要添加的节点标签名(默认:div)
      * @returns 
      */
     addNode(name, tag = "div") {
-        if (name == "" || name in this.nodes) return; // 既に存在する場合は何もしない
+        if (name == "" || name in this.nodes) return; // Do nothing if already exists / 如果已存在则不做任何操作
         this.nodes[name] = document.createElement(tag);
         this.nodes[name].classList.add(this.PREFIX + name);
     }
 
     /**
-     * baseノードからhideクラスを削除
+     * Remove hide class from base node / 从基础节点移除hide类
      */
     hide() {
         this.nodes.base.classList.add(OverlayBase.HIDE_CLASS);
     }
 
     /**
-     * baseノードにhideクラスを付与
+     * Add hide class to base node / 向基础节点添加hide类
      */
     show() {
         this.nodes.base.classList.remove(OverlayBase.HIDE_CLASS);
     }
 
     /**
-     * baseノードにhideクラスが含まれているか確認
-     * @returns {boolean} 非表示状態=true
+     * Check if base node contains hide class / 检查基础节点是否包含hide类
+     * @returns {boolean} Hidden state=true / 隐藏状态=true
      */
     isHidden() {
         return this.nodes.base.classList.contains(OverlayBase.HIDE_CLASS);
     }
 
     /**
-     * baseノードにforcehideクラスを付与
+     * Add forcehide class to base node / 向基础节点添加forcehide类
      */
     addForceHide() {
         this.nodes.base.classList.add(OverlayBase.FORCEHIDE_CLASS);
     }
 
     /**
-     * baseノードからforcehideクラスを削除
+     * Remove forcehide class from base node / 从基础节点移除forcehide类
      */
     removeForceHide() {
         this.nodes.base.classList.remove(OverlayBase.FORCEHIDE_CLASS);
     }
 
     /**
-     * 引数の文字列にPREFIXをつけたクラスをbaseノードに付与
-     * @param {string} name クラス名に含まれる文字列
+     * Add class with PREFIX to base node / 向基础节点添加带前缀的类
+     * @param {string} name String included in class name / 类名中包含的字符串
      */
     addClass(name) {
         this.nodes.base.classList.add(this.PREFIX + name);
     }
 
     /**
-     * 引数の文字列にPREFIXをつけたクラスをbaseノードから削除
-     * @param {string} name クラス名に含まれる文字列
+     * Remove class with PREFIX from base node / 从基础节点移除带前缀的类
+     * @param {string} name String included in class name / 类名中包含的字符串
      */
     removeClass(name) {
         this.nodes.base.classList.remove(this.PREFIX + name);
     }
 
     /**
-     * 引数の文字列にPREFIXをつけた文字列から始まるクラスを全て削除する
-     * @param {string} name クラス名に含まれる文字列
+     * Remove all classes starting with PREFIX + argument string / 移除所有以前缀+参数字符串开头的类
+     * @param {string} name String included in class name / 类名中包含的字符串
      */
     clearClasses(name) {
         for (const id of this.nodes.base.classList) {
@@ -109,26 +109,26 @@ export class OverlayBase {
 
 
 /**
- * @const {number[]} calcpoints_table 順位ポイント
+ * @const {number[]} calcpoints_table Placement points / 排名积分
  */
 const calcpoints_table = [12, 9, 7, 5, 4, 3, 3, 2, 2, 2, 1, 1, 1, 1, 1];
 
 /**
- * ポイント詳細
+ * Point details / 积分详情
  * @typedef {object} detailpoints
- * @prop {number} total 合計ポイント
- * @prop {number} kills キルポイント
- * @prop {number} placement 順位ポイント
- * @prop {number} other その他ポイント
+ * @prop {number} total Total points / 总积分
+ * @prop {number} kills Kill points / 击杀积分
+ * @prop {number} placement Placement points / 排名积分
+ * @prop {number} other Other points / 其他积分
  */
 
 /**
- * 順位ポイント・キル数からマッチのポイントを計算する
- * @param {number} gameid 計算対象のゲーム番号(0～)
- * @param {number} placement 順位(1～20)
- * @param {number} kills キル数
- * @param {object} params トーナメントparams(ポイント計算用)
- * @returns {detailpoints} ポイント(詳細データ)
+ * Calculate match points from placement and kills / 根据排名和击杀数计算比赛积分
+ * @param {number} gameid Game number to calculate (0~) / 要计算的比赛编号(0~)
+ * @param {number} placement Placement (1~20) / 排名(1~20)
+ * @param {number} kills Number of kills / 击杀数
+ * @param {object} params Tournament params (for point calculation) / 锦标赛参数(用于积分计算)
+ * @returns {detailpoints} Points (detailed data) / 积分(详细数据)
  */
 export function calcPoints(gameid, placement, kills, params) {
     if (placement <= 0) throw new Error('placement is >= 0.');
@@ -142,7 +142,7 @@ export function calcPoints(gameid, placement, kills, params) {
     let calcmethod = {};
     if ('calcmethod' in params && gameid in params.calcmethod) calcmethod = params.calcmethod[gameid];
 
-    // キルによるポイント計算
+    // Calculate points from kills / 根据击杀计算积分
     let killamp = 1;
     if ('killamp' in calcmethod) killamp = calcmethod.killamp;
     points.kills = kills * killamp;
@@ -151,17 +151,17 @@ export function calcPoints(gameid, placement, kills, params) {
     if ('killcap' in calcmethod) killcap = calcmethod.killcap;
     if (points.kills > killcap) points.kills = killcap;
 
-    // 順位ポイント計算
+    // Calculate placement points / 计算排名积分
     if ('customtable' in calcmethod) {
         if (placement - 1 < calcmethod.customtable.length) points.placement = calcmethod.customtable[placement - 1];
     } else {
         if (placement - 1 < calcpoints_table.length) points.placement = calcpoints_table[placement - 1];
     }
 
-    // その他のポイント計算
+    // Calculate other points / 计算其他积分
     points.other = 0;
 
-    // 合計
+    // Total / 合计
     points.total = points.kills + points.placement + points.other;
     return points;
 }
@@ -181,31 +181,31 @@ export function getAdvancePoints(teamid, params) {
 }
 
 /**
- * 計算用のチームオブジェクト
+ * Team object for calculation / 计算用的团队对象
  * @typedef {object} teamresult
- * @prop {string} name チーム名
- * @prop {number} total_points 合計ポイント
- * @prop {number[]} points 各ゲームのポイント
- * @prop {number[]} placements 各ゲームの順位(1～)
- * @prop {number[]} kills 各ゲームのキル数
- * @prop {number[]} kill_points 各ゲームのキルポイント
- * @prop {number[]} placement_points 各ゲームの順位ポイント
- * @prop {number[]} other_points 各ゲームのその他ポイント
- * @prop {number} rank 順位(-1は未評価, 0=1位,1=2位...)
- * @prop {boolean} eliminated 排除済みかどうか
- * @prop {number[]} status プレーヤーの生存状況
+ * @prop {string} name Team name / 团队名称
+ * @prop {number} total_points Total points / 总积分
+ * @prop {number[]} points Points for each game / 每场比赛的积分
+ * @prop {number[]} placements Placement for each game (1~) / 每场比赛的排名(1~)
+ * @prop {number[]} kills Kills for each game / 每场比赛的击杀数
+ * @prop {number[]} kill_points Kill points for each game / 每场比赛的击杀积分
+ * @prop {number[]} placement_points Placement points for each game / 每场比赛的排名积分
+ * @prop {number[]} other_points Other points for each game / 每场比赛的其他积分
+ * @prop {number} rank Rank (-1 is unevaluated, 0=1st, 1=2nd...) / 排名(-1为未评估, 0=第1名, 1=第2名...)
+ * @prop {boolean} eliminated Whether eliminated / 是否已被淘汰
+ * @prop {number[]} status Player survival status / 玩家生存状态
  */
 
 /**
- * 計算用のチームオブジェクト入れ
+ * Container for team objects for calculation / 计算用的团队对象容器
  * @typedef {Object.<number, teamresult>} teamresults
  */
 
 /**
- * teamresultオブジェクトの初期化
- * @param {number} teamid チームID(0～)
- * @param {string} name チーム名
- * @returns {teamresult} チームリザルト
+ * Initialize teamresult object / 初始化teamresult对象
+ * @param {number} teamid Team ID (0~) / 团队ID(0~)
+ * @param {string} name Team name / 团队名称
+ * @returns {teamresult} Team result / 团队结果
  */
 function initTeamResult(teamid, name) {
     return {
@@ -228,9 +228,9 @@ function initTeamResult(teamid, name) {
 }
 
 /**
- * webapiで取得したリザルトをteamresults形式にして返す
- * @param {object[]} results webapi側で取得できるresultの入った配列
- * @return {teamresults} teamresult形式のデータ
+ * Convert results from webapi to teamresults format / 将从webapi获取的结果转换为teamresults格式
+ * @param {object[]} results Array of results from webapi / 从webapi获取的结果数组
+ * @return {teamresults} Data in teamresult format / teamresult格式的数据
  */
 export function resultsToTeamResults(results) {
     const teamresults = {};
@@ -241,17 +241,17 @@ export function resultsToTeamResults(results) {
             }
             const tr = teamresults[teamid];
 
-            // 参加していない試合分を埋める
+            // Fill in for matches not participated / 填充未参与的比赛
             while (tr.kills.length < index) { tr.kills.push(0) }
             while (tr.placements.length < index) { tr.placements.push(0xff) }
 
-            // 入っている試合分のデータを入れる
+            // Add data for participated matches / 添加已参与比赛的数据
             tr.kills.push(team.kills);
             tr.placements.push(team.placement);
         }
     });
 
-    // 参加していない試合分を末尾まで埋める(順位は0xff)
+    // Fill remaining non-participated matches to the end (placement is 0xff) / 填充剩余未参与的比赛到末尾(排名为0xff)
     for (const team of Object.values(teamresults)) {
         while (team.kills.length < results.length) { team.kills.push(0) }
         while (team.placements.length < results.length) { team.placements.push(0xff) }
@@ -261,13 +261,13 @@ export function resultsToTeamResults(results) {
 }
 
 /**
- * キルと順位を追加する
- * @param {teamresults} teamresults 追加対象
- * @param {number} gameid ゲームID
- * @param {number} teamid チームID
- * @param {string} name チーム名
- * @param {number} kills キル数
- * @param {number} placement 順位
+ * Add kills and placement / 添加击杀数和排名
+ * @param {teamresults} teamresults Target to add / 添加目标
+ * @param {number} gameid Game ID / 比赛ID
+ * @param {number} teamid Team ID / 团队ID
+ * @param {string} name Team name / 团队名称
+ * @param {number} kills Number of kills / 击杀数
+ * @param {number} placement Placement / 排名
  */
 export function appendToTeamResults(teamresults, gameid, teamid, name, kills, placement) {
     if (!(teamid in teamresults)) {
@@ -275,36 +275,36 @@ export function appendToTeamResults(teamresults, gameid, teamid, name, kills, pl
     }
     const tr = teamresults[teamid];
 
-    // 参加していない試合分を埋める
+    // Fill in for matches not participated / 填充未参与的比赛
     while (tr.kills.length < gameid) { tr.kills.push(0) }
     while (tr.placements.length < gameid) { tr.placements.push(0xff) }
 
-    // 入っている試合分のデータを入れる
+    // Add data for participated matches / 添加已参与比赛的数据
     tr.kills.push(kills);
     tr.placements.push(placement);
 }
 
 /**
- * 現在の順位を計算してteamresultsのパラメータに設定する
- * @param {teamresults} teamresults total_points,points,placements,killsをパラメータに持つ
+ * Calculate current rank and set to teamresults parameters / 计算当前排名并设置到teamresults参数
+ * @param {teamresults} teamresults Has total_points, points, placements, kills as parameters / 具有total_points, points, placements, kills参数
  * @return {string[]}
  */
 export function setRankParameterToTeamResults(teamresults) {
     const keys = JSON.parse(JSON.stringify(Object.keys(teamresults)));
     const sorted_teamids = keys.sort((a, b) => {
-        // 現在のトータルポイント比較
+        // Compare current total points / 比较当前总积分
         const ta = teamresults[a];
         const tb = teamresults[b];
 
-        // マッチポイントの勝者
+        // Match point winner / 赛点获胜者
         if ('winner' in ta && ta.winner) return -1;
         if ('winner' in tb && tb.winner) return  1;
 
-        // 現在のトータルポイント比較
+        // Compare current total points / 比较当前总积分
         if (ta.total_points > tb.total_points) return -1;
         if (ta.total_points < tb.total_points) return  1;
 
-        // ソート
+        // Sort / 排序
         const numsort = (a, b) => {
             if (a < b) return -1;
             if (a > b) return 1;
@@ -324,25 +324,25 @@ export function setRankParameterToTeamResults(teamresults) {
         ta.kills.sort(numrevsort);
         tb.kills.sort(numrevsort);
 
-        // 同点の場合は、過去のゲームの最高ポイント
+        // In case of tie, compare highest points from past games / 平分时比较过去比赛的最高积分
         for (let i = 0; i < ta.points.length && i < tb.points.length; ++i) {
             if (ta.points[i] > tb.points[i]) return -1;
             if (ta.points[i] < tb.points[i]) return  1;
         }
 
-        // 同点の場合は、過去のゲームの最高順位
+        // In case of tie, compare highest placement from past games / 平分时比较过去比赛的最高排名
         for (let i = 0; i < ta.placements.length && i < tb.placements.length; ++i) {
             if (ta.placements[i] > tb.placements[i]) return  1;
             if (ta.placements[i] < tb.placements[i]) return -1;
         }
 
-        // 同点の場合は、過去のゲームの最高キル数
+        // In case of tie, compare highest kills from past games / 平分时比较过去比赛的最高击杀数
         for (let i = 0; i < ta.kills.length && i < tb.kills.length; ++i) {
             if (ta.kills[i] > tb.kills[i]) return -1;
             if (ta.kills[i] < tb.kills[i]) return  1;
         }
 
-        // イレギュラー: 試合数多いほうが勝ち(比較対象が多い)
+        // Irregular: team with more matches wins (more comparison targets) / 特殊情况: 比赛场次多的获胜(比较对象更多)
         if (ta.points.length > tb.points.length) return -1;
         if (ta.points.length < tb.points.length) return  1;
 
@@ -358,28 +358,28 @@ export function setRankParameterToTeamResults(teamresults) {
 }
 
 /**
- * 計算用のプレーヤー戦績オブジェクト
+ * Player stats object for calculation / 计算用的玩家战绩对象
  * @typedef {object} playerstat
- * @prop {string} name プレイヤー名
- * @prop {string} hash プレイヤーID(hash)
- * @prop {string} teamname チーム名
- * @prop {string} teamid チームID
- * @prop {number} kills 各ゲームのポイント
- * @prop {number} assists 各ゲームの順位(1～)
- * @prop {number} damage 各ゲームのキル数
- * @prop {number} rank 順位
+ * @prop {string} name Player name / 玩家名称
+ * @prop {string} hash Player ID (hash) / 玩家ID(哈希)
+ * @prop {string} teamname Team name / 团队名称
+ * @prop {string} teamid Team ID / 团队ID
+ * @prop {number} kills Points for each game / 每场比赛的积分
+ * @prop {number} assists Placement for each game (1~) / 每场比赛的排名(1~)
+ * @prop {number} damage Kills for each game / 每场比赛的击杀数
+ * @prop {number} rank Rank / 排名
  */
 
 /**
- * プレイヤー戦績
+ * Player stats / 玩家战绩
  * @typedef {Object.<string, playerstat>} playerstats
  */
 
 /**
- * playerstatオブジェクトの初期化
- * @param {string} hash プレイヤーID(hash)
- * @param {string} name プレイヤー名
- * @returns {playerstat} プレイヤー戦績
+ * Initialize playerstat object / 初始化playerstat对象
+ * @param {string} hash Player ID (hash) / 玩家ID(哈希)
+ * @param {string} name Player name / 玩家名称
+ * @returns {playerstat} Player stats / 玩家战绩
  */
 function initPlayerStat(hash, name) {
     return {
@@ -395,9 +395,9 @@ function initPlayerStat(hash, name) {
 }
 
 /**
- * webapiで取得したリザルトをplayerstats形式にして返す
- * @param {object[]} results webapi側で取得できるresultの入った配列
- * @return {playerstats} playerstats形式のデータ
+ * Convert results from webapi to playerstats format / 将从webapi获取的结果转换为playerstats格式
+ * @param {object[]} results Array of results from webapi / 从webapi获取的结果数组
+ * @return {playerstats} Data in playerstats format / playerstats格式的数据
  */
 export function resultsToPlayerStats(results) {
     const playerstats = {};
@@ -420,11 +420,41 @@ export function resultsToPlayerStats(results) {
 }
 
 /**
- * @param {string} html 1つの要素を含むHTML文字列
- * @return {HTMLElement} 作成されたHTMLElement
+ * @param {string} html HTML string containing one element / 包含一个元素的HTML字符串
+ * @return {HTMLElement} Created HTMLElement / 创建的HTMLElement
  */
 export function htmlToElement(html) {
     const template = document.createElement('template');
     template.innerHTML = html.trim();
     return template.content;
+}
+
+/**
+ * Sort team elements by rank and reorder them in the DOM
+ * @param {Object} teamsObj - Object containing team elements keyed by team ID
+ * @param {string} rankSelector - CSS selector for the rank element within each team
+ * @param {HTMLElement} rootElement - Parent element containing all team elements
+ * @returns {HTMLElement[]} - Sorted array of team elements
+ */
+export function sortTeamsByRank(teamsObj, rankSelector, rootElement) {
+    const teams = Object.values(teamsObj);
+    teams.sort((a, b) => {
+        const a_node = a.querySelector(rankSelector);
+        const b_node = b.querySelector(rankSelector);
+        const a_rank = parseInt(a_node?.innerText || '0', 10);
+        const b_rank = parseInt(b_node?.innerText || '0', 10);
+        if (a_rank > b_rank) return 1;
+        if (a_rank < b_rank) return -1;
+        return 0;
+    });
+
+    for (const team of teams) {
+        const rankNode = team.querySelector(rankSelector);
+        const rank = parseInt(rankNode?.innerText || '1', 10) - 1;
+        if (rootElement.children[rank] != team) {
+            rootElement.insertBefore(team, rootElement.children[rank]);
+        }
+    }
+
+    return teams;
 }

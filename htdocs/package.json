@@ -1,0 +1,26 @@
+{
+  "name": "overlaytools-frontend",
+  "version": "1.0.0",
+  "description": "Web overlays for Apex Legends custom matches",
+  "type": "module",
+  "scripts": {
+    "lint": "eslint *.js overlays/*.js custom-overlays/*.js --fix",
+    "format": "prettier --write \"**/*.{js,css,html,json}\"",
+    "check": "eslint *.js && prettier --check \"**/*.{js,css,html,json}\"",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "eslint": "^9.0.0",
+    "prettier": "^3.2.0",
+    "vitest": "^2.0.0",
+    "jsdom": "^24.0.0"
+  },
+  "keywords": [
+    "apex-legends",
+    "overlay",
+    "obs",
+    "livestream"
+  ],
+  "license": "MIT"
+}

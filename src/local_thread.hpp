@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "common.hpp"
 
@@ -152,10 +152,10 @@ namespace app
 		local_thread(DWORD _logid);
 		~local_thread();
 
-		// コピー不可
+		// Non-copyable / 禁止拷贝
 		local_thread(const local_thread&) = delete;
 		local_thread& operator = (const local_thread&) = delete;
-		// ムーブ不可
+		// Non-movable / 禁止移动
 		local_thread(local_thread&&) = delete;
 		local_thread& operator = (local_thread&&) = delete;
 

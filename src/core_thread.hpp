@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "common.hpp"
 
@@ -24,6 +24,12 @@ namespace app {
 		CORE_MESSAGE_MAP_STATE_HIDE,
 		CORE_MESSAGE_GET_STATS
 	};
+
+	// Timeout constants for LiveAPI communication
+	namespace core_constants {
+		constexpr uint64_t LIVEAPI_SEND_TIMEOUT_MS = 2000;      // Timeout for LiveAPI send operations
+		constexpr uint64_t LIVEAPI_RESPONSE_INTERVAL_MS = 500;  // Minimum wait between responses
+	}
 
 	class core_thread {
 		HWND window_;
@@ -210,10 +216,10 @@ namespace app {
 		core_thread(const std::string& _lip, uint16_t _lport, const std::string& _wip, uint16_t _wport, uint16_t _wmaxconn);
 		~core_thread();
 
-		// コピー不可
+		// Non-copyable / 禁止拷贝
 		core_thread(const core_thread&) = delete;
 		core_thread& operator = (const core_thread&) = delete;
-		// ムーブ不可
+		// Non-movable / 禁止移动
 		core_thread(core_thread&&) = delete;
 		core_thread& operator = (core_thread&&) = delete;
 

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "common.hpp"
 
@@ -39,13 +39,13 @@ namespace app
 		HANDLE event_close_;
 		HANDLE event_ping_;
 
-		// winhttp callbackとのやり取り用
+		// For communication with winhttp callback / 用于与winhttp回调通信
 		HANDLE event_winhttp_;
 		DWORD available_;
 		std::mutex event_mtx_;
 		std::queue<uint32_t> event_queue_;
 
-		// 外部とのやり取り用
+		// For external communication / 用于与外部通信
 		std::mutex wqmtx_;
 		std::mutex rqmtx_;
 		HANDLE event_wq_;
@@ -69,10 +69,10 @@ namespace app
 		http_get_thread(DWORD _logid);
 		~http_get_thread();
 
-		// コピー不可
+		// Non-copyable / 禁止拷贝
 		http_get_thread(const http_get_thread&) = delete;
 		http_get_thread& operator = (const http_get_thread&) = delete;
-		// ムーブ不可
+		// Non-movable / 禁止移动
 		http_get_thread(http_get_thread&&) = delete;
 		http_get_thread& operator = (http_get_thread&&) = delete;
 

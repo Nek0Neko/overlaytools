@@ -1,4 +1,4 @@
-﻿#include "duplication_thread.hpp"
+#include "duplication_thread.hpp"
 
 #include "log.hpp"
 
@@ -266,7 +266,7 @@ namespace app {
 
 			monitor = get_monitor();
 			monitor_available = dup.select_monitor(monitor);
-			if (monitor_available)
+			if (!monitor_available)
 			{
 				log(LOG_DUPLICATION, L"Error: monitor '%s' is not available.", monitor.c_str());
 			}
@@ -305,7 +305,7 @@ namespace app {
 						bool alivesicon = is_shown_alivesicon(buffer);
 						bool teambanner_show = screen_state_prev.teambanner_show;
 
-						// 差分表示
+						// Show differences / 显示差异
 						if (teamnameframe != screen_state_prev.teamnameframe) log(LOG_DUPLICATION, L"Info: teamnameframe=%s.", teamnameframe ? L"true" : L"false");
 						if (grenadeframe != screen_state_prev.grenadeframe) log(LOG_DUPLICATION, L"Info: grenadeframe=%s.", grenadeframe ? L"true" : L"false");
 						if (team1frame != screen_state_prev.team1frame) log(LOG_DUPLICATION, L"Info: team1frame=%s.", team1frame ? L"true" : L"false");
@@ -347,7 +347,7 @@ namespace app {
 							screen_state_prev.teambanner_show = teambanner_show;
 						}
 
-						// main_window用バッファへコピー
+						// Copy to main_window buffer / 复制到main_window缓冲区
 						{
 							std::lock_guard<std::mutex> lock(mtx_buffer_);
 							buffer_ = buffer;
@@ -402,7 +402,7 @@ namespace app {
 	{
 		window_ = _window;
 
-		// イベント作成
+		// Create events / 创建事件
 		event_close_ = ::CreateEventW(NULL, FALSE, FALSE, NULL);
 		if (event_close_ == NULL)
 		{
@@ -434,14 +434,14 @@ namespace app {
 			return false;
 		}
 
-		// スレッド起動
+		// Start thread / 启动线程
 		thread_ = ::CreateThread(NULL, 0, proc_common, this, 0, NULL);
 		return thread_ != NULL;
 	}
 
 	void duplication_thread::stop()
 	{
-		// スレッドの停止
+		// Stop thread / 停止线程
 		if (thread_ != NULL)
 		{
 			::SetEvent(event_close_);

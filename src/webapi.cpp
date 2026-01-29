@@ -1,4 +1,4 @@
-﻿#include "webapi.hpp"
+#include "webapi.hpp"
 
 #include <stdexcept>
 
@@ -36,8 +36,12 @@ namespace app {
 	{
 		buffer_ = std::move(_data);
 		if (buffer_->size() < 2) return false;
-		size_t offset = 2;
+		
+		// Input validation: check data count limit
 		auto count = size();
+		if (count > webapi_limits::MAX_DATA_COUNT) return false;
+		
+		size_t offset = 2;
 		for (size_t i = 0; i < count; ++i)
 		{
 			if (buffer_->size() <= offset) return false;
@@ -76,6 +80,8 @@ namespace app {
 			{
 				if (buffer_->size() <= offset) return false;
 				const auto len = buffer_->at(offset);
+				// Input validation: check string length
+				if (len > webapi_limits::MAX_STRING_LENGTH) return false;
 				offset += 1 + len;
 				break;
 			}
@@ -84,6 +90,8 @@ namespace app {
 				if (buffer_->size() <= offset + 3) return false;
 				uint32_t len = 0;
 				std::memcpy(&len, &buffer_->at(offset), 4);
+				// Input validation: check JSON length
+				if (len > webapi_limits::MAX_JSON_LENGTH) return false;
 				offset += 4 + len;
 				break;
 			}
@@ -264,7 +272,7 @@ namespace app {
 
 
 	send_webapi_data::send_webapi_data(uint8_t _type)
-		: buffer_(new std::vector<uint8_t>({_type, 0}))
+		: buffer_(std::make_unique<std::vector<uint8_t>>(std::initializer_list<uint8_t>{_type, 0}))
 	{
 	}
 
@@ -394,7 +402,7 @@ namespace app {
 		uint64_t v;
 		buffer_->at(1)++;
 		std::memcpy(&v, &_v, 8);
-		buffer_->push_back(WEBAPI_DATA_UINT64);
+		buffer_->push_back(WEBAPI_DATA_INT64);
 		for (auto i = 0u; i < 8; ++i)
 		{
 			buffer_->push_back(v & 0xff);

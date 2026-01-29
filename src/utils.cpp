@@ -1,4 +1,4 @@
-﻿#include "utils.hpp"
+#include "utils.hpp"
 
 #include <vector>
 #include <chrono>
@@ -13,10 +13,10 @@ namespace app {
 		std::vector<WCHAR> buf(32767, L'\0');
 		std::wstring r = L"";
 
-		// モジュールインスタンスからDLLパスを取得
+		// Get DLL path from module instance / 从模块实例获取DLL路径
 		auto loaded = ::GetModuleFileNameW(::GetModuleHandleW(nullptr), buf.data(), buf.size());
 
-		// 直前のバックスラッシュを探す
+		// Find the previous backslash / 查找前一个反斜杠
 		for (DWORD i = loaded - 1; i != 0; --i)
 		{
 			if (buf.at(i) == L'\\')
@@ -26,10 +26,10 @@ namespace app {
 			}
 		}
 
-		// メモリ確保(念のため)
+		// Memory allocation (just in case) / 内存分配（以防万一）
 		r.reserve(loaded + 6);
 
-		// パスの合成
+		// Path composition / 路径合成
 		if (buf.at(0) == L'\\' && buf.at(1) == L'\\')
 		{
 			r += L"\\\\?\\UN";
@@ -57,7 +57,7 @@ namespace app {
 		::CoTaskMemFree(savedgames);
 		if (path == L"") return L"";
 
-		// パスの合成
+		// Path composition / 路径合成
 		std::wstring prefix = L"";
 		if (path.at(0) == L'\\' && path.at(1) == L'\\')
 		{

@@ -1,4 +1,4 @@
-﻿#include "http_get_thread.hpp"
+#include "http_get_thread.hpp"
 
 #include "log.hpp"
 
@@ -100,7 +100,7 @@ namespace app {
 	{
 		log(logid_, L"Info: thread start.");
 
-		// WinHTTPの初期化
+		// Initialize WinHTTP / 初始化WinHTTP
 		session_ = ::WinHttpOpen(L"github.com/ndekopon/overlaytools", WINHTTP_ACCESS_TYPE_AUTOMATIC_PROXY, WINHTTP_NO_PROXY_NAME, WINHTTP_NO_PROXY_BYPASS, WINHTTP_FLAG_ASYNC | WINHTTP_FLAG_SECURE_DEFAULTS);
 		if (session_ == NULL)
 		{
@@ -108,7 +108,7 @@ namespace app {
 			return 0;
 		}
 
-		// callbackの設定
+		// Set callback / 设置回调
 		auto prev_callback = ::WinHttpSetStatusCallback(session_, (WINHTTP_STATUS_CALLBACK)callback_common, WINHTTP_CALLBACK_FLAG_ALL_NOTIFICATIONS, NULL);
 		if (prev_callback == WINHTTP_INVALID_STATUS_CALLBACK)
 		{
@@ -116,7 +116,7 @@ namespace app {
 			return 0;
 		}
 
-		// callbackのcontext設定
+		// Set callback context / 设置回调上下文
 		DWORD_PTR option_context = reinterpret_cast<DWORD_PTR>(this);
 		if (!::WinHttpSetOption(session_, WINHTTP_OPTION_CONTEXT_VALUE, &option_context, sizeof(option_context)))
 		{
@@ -124,7 +124,7 @@ namespace app {
 			return 0;
 		}
 
-		// 返送用データ
+		// Data for reply / 返回数据
 		std::vector<char> buf;
 		buf.resize(64 * 1024);
 		uint64_t timestamp = 0;
@@ -138,7 +138,7 @@ namespace app {
 		};
 
 
-		// 本文の受信
+		// Receive body / 接收正文
 		while (1)
 		{
 			bool close_connection = false;
@@ -147,12 +147,12 @@ namespace app {
 			if (id == WAIT_OBJECT_0)
 			{
 				log(logid_, L"Info: close called.");
-				// close要求
+				// Close request / 关闭请求
 				break;
 			}
 			else if (id == WAIT_OBJECT_0 + 1)
 			{
-				// ping(タイムアウトを確認する)
+				// Ping (check timeout) / Ping（检查超时）
 				if (timestamp > 0 && get_millis() - timestamp > 10000)
 				{
 					log(logid_, L"Info: connection timeout.");
@@ -161,11 +161,11 @@ namespace app {
 			}
 			else if (id == WAIT_OBJECT_0 + 2)
 			{
-				// 現在取得中の場合は何もしない
+				// Do nothing if currently retrieving / 如果正在获取则不做任何操作
 				if (connect_ != NULL) continue;
 				if (request_ != NULL) continue;
 
-				// codeチェック
+				// Code check / 代码检查
 				{
 					std::lock_guard<std::mutex> lock(rqmtx_);
 					if (rq_.size() > 0)
@@ -175,7 +175,7 @@ namespace app {
 					}
 					else
 					{
-						// 要求がない場合はスキップ
+						// Skip if no request / 如果没有请求则跳过
 						continue;
 					}
 					reply_data->json->reserve(64000);
@@ -199,7 +199,7 @@ namespace app {
 			}
 			else if (id == WAIT_OBJECT_0 + 3)
 			{
-				// イベントの取り出し
+				// Extract events / 提取事件
 				std::queue<uint32_t> q;
 				{
 					std::lock_guard<std::mutex> lock(event_mtx_);
@@ -210,7 +210,7 @@ namespace app {
 					}
 				}
 
-				// イベント処理
+				// Event processing / 事件处理
 				while (q.size() > 0)
 				{
 					auto get_event = q.front();
@@ -327,11 +327,11 @@ namespace app {
 						push_wq(std::move(reply_data));
 					}
 
-					// 値の初期化
+					// Initialize values / 初始化值
 					timestamp = 0;
 					reply_data.reset(nullptr);
 
-					::SetEvent(event_rq_); // 次の要求処理
+					::SetEvent(event_rq_); // Process next request / 处理下一个请求
 				}
 			}
 		}
@@ -344,7 +344,7 @@ namespace app {
 		WCHAR hostname[256], urlpath[2048];
 		std::wstring url = L"https://r5-crossplay.r5prod.stryder.respawn.com/privatematch/?token=" + s_to_ws(_stats_code);
 
-		// URL解析
+		// Parse URL / 解析URL
 		URL_COMPONENTS url_components = { 0 };
 		url_components.dwStructSize = sizeof(URL_COMPONENTS);
 		url_components.lpszHostName = hostname;
@@ -356,28 +356,28 @@ namespace app {
 			return false;
 		}
 
-		// HTTPの開始(同期的)
+		// Start HTTP (synchronous) / 启动HTTP（同步）
 		connect_ = ::WinHttpConnect(session_, hostname, url_components.nPort, 0);
 		if (connect_ == NULL)
 		{
 			return false;
 		}
 
-		// 接続された
+		// Connected / 已连接
 		request_ = ::WinHttpOpenRequest(connect_, L"GET", urlpath, L"HTTP/1.1", WINHTTP_NO_REFERER, WINHTTP_DEFAULT_ACCEPT_TYPES, (url_components.nScheme == INTERNET_SCHEME_HTTPS) ? WINHTTP_FLAG_SECURE : 0);
 		if (request_ == NULL)
 		{
 			return false;
 		}
 
-		// Keep-Aliveしない
+		// Disable Keep-Alive / 禁用Keep-Alive
 		long disable_feature = WINHTTP_DISABLE_KEEP_ALIVE;
 		if (!::WinHttpSetOption(request_, WINHTTP_OPTION_DISABLE_FEATURE, &disable_feature, sizeof(disable_feature)))
 		{
 			return false;
 		}
 
-		// リクエストが作成された
+		// Request created / 请求已创建
 		if (::WinHttpSendRequest(request_, WINHTTP_NO_ADDITIONAL_HEADERS, 0, WINHTTP_NO_REQUEST_DATA, 0, WINHTTP_IGNORE_REQUEST_TOTAL_LENGTH, 0) == FALSE)
 		{
 			return false;
@@ -390,7 +390,7 @@ namespace app {
 	{
 		response_header hdr = { L"", 0 };
 
-		// ヘッダー取得可能
+		// Headers available / 头部可用
 		DWORD size = 0;
 		if (::WinHttpQueryHeaders(request_, WINHTTP_QUERY_RAW_HEADERS_CRLF, WINHTTP_HEADER_NAME_BY_INDEX, WINHTTP_NO_OUTPUT_BUFFER, &size, WINHTTP_NO_HEADER_INDEX) == FALSE)
 		{
@@ -400,17 +400,19 @@ namespace app {
 			}
 		}
 
-		auto buffer = (WCHAR*)::HeapAlloc(::GetProcessHeap(), 0, size);
+		// RAII wrapper for HeapAlloc to prevent memory leaks
+		auto heap_deleter = [](WCHAR* p) { if (p) ::HeapFree(::GetProcessHeap(), 0, p); };
+		std::unique_ptr<WCHAR, decltype(heap_deleter)> buffer(
+			(WCHAR*)::HeapAlloc(::GetProcessHeap(), 0, size), heap_deleter);
 		if (buffer)
 		{
-			if (::WinHttpQueryHeaders(request_, WINHTTP_QUERY_RAW_HEADERS_CRLF, WINHTTP_HEADER_NAME_BY_INDEX, buffer, &size, WINHTTP_NO_HEADER_INDEX))
+			if (::WinHttpQueryHeaders(request_, WINHTTP_QUERY_RAW_HEADERS_CRLF, WINHTTP_HEADER_NAME_BY_INDEX, buffer.get(), &size, WINHTTP_NO_HEADER_INDEX))
 			{
-				hdr.data = buffer;
+				hdr.data = buffer.get();
 			}
-			::HeapFree(::GetProcessHeap(), NULL, buffer);
 		}
 
-		// レスポンスコードの確認
+		// Check response code / 检查响应代码
 		size = sizeof(DWORD);
 		::WinHttpQueryHeaders(request_, WINHTTP_QUERY_STATUS_CODE | WINHTTP_QUERY_FLAG_NUMBER, WINHTTP_HEADER_NAME_BY_INDEX, &hdr.code, &size, WINHTTP_NO_HEADER_INDEX);
 
@@ -445,14 +447,14 @@ namespace app {
 			return false;
 		}
 
-		// スレッド起動
+		// Start thread / 启动线程
 		thread_ = ::CreateThread(NULL, 0, proc_common, this, 0, NULL);
 		return thread_ != NULL;
 	}
 
 	void http_get_thread::stop()
 	{
-		// スレッドの停止
+		// Stop thread / 停止线程
 		if (thread_ != NULL)
 		{
 			::SetEvent(event_close_);
@@ -463,7 +465,7 @@ namespace app {
 
 	void http_get_thread::ping()
 	{
-		// タイムアウト確認用
+		// For timeout check / 用于超时检查
 		::SetEvent(event_ping_);
 	}
 
@@ -588,7 +590,7 @@ namespace app {
 		q->sequence = _sequence;
 		q->code = _stats_code;
 		q->status_code = 0;
-		q->json.reset(new std::string(""));
+		q->json = std::make_unique<std::string>("");
 		{
 			std::lock_guard<std::mutex> lock(rqmtx_);
 			rq_.push(std::move(q));

@@ -204,7 +204,7 @@ class Game {
 }
 
 export class ApexWebAPI extends EventTarget {
-  // 定数系
+  // Constants / 常量
   static WEBAPI_EVENT_OBSERVERSWITCHED = 0x01;
   static WEBAPI_EVENT_MATCHSETUP_MAP = 0x02;
   static WEBAPI_EVENT_MATCHSETUP_PLAYLIST = 0x03;
@@ -390,19 +390,17 @@ export class ApexWebAPI extends EventTarget {
 
     this.#socket.addEventListener("message", (event) => {
       if (event.data instanceof ArrayBuffer) {
-        // バイナリーフレーム
-        // データ種類
+        // Binary frame / 二进制帧
+        // Data type / 数据类型
         const view = new DataView(event.data);
         const data_type = view.getUint8(0);
         const data_count = view.getUint8(1);
         const data_array = event.data.slice(2);
         if (!this.#procData(data_type, data_count, data_array)) {
-          console.log('proc_data failed. data_type=0x' + data_type.toString(16));
-          console.log('data_count=' + data_count);
-          console.log(event.data);
+          console.warn(`[ApexWebAPI] proc_data failed: data_type=0x${data_type.toString(16)}, data_count=${data_count}`);
         }
       } else {
-        // テキストフレーム
+        // Text frame / 文本帧
         console.log('text frame received.');
         console.log(event.data);
       }
@@ -442,7 +440,7 @@ export class ApexWebAPI extends EventTarget {
     const data_array = [];
     let offset = 0;
     for (let i = 0; i < count; ++i) {
-      // データ型
+      // Data type / 数据类型
       const view = new DataView(data);
       const data_type = view.getUint8(offset);
       ++offset;
@@ -700,7 +698,7 @@ export class ApexWebAPI extends EventTarget {
     if (arr[0] == 0) return false;
     this.#procPlayer(arr[0], arr[1], { connected: true, canreconnect: false });
     if (arr[0] >= 2) {
-      // プレイヤーのみイベントを飛ばす
+      // Only dispatch event for players / 仅为玩家派发事件
       this.dispatchEvent(new CustomEvent('playerconnected', {
         detail: {
           player: this.#game.teams[arr[0] - 2].players[arr[1]],
@@ -715,7 +713,7 @@ export class ApexWebAPI extends EventTarget {
     if (arr[0] == 0) return false;
     this.#procPlayer(arr[0], arr[1], { connected: false, canreconnect: arr[2] });
     if (arr[0] >= 2) {
-      // プレイヤーのみイベントを飛ばす
+      // Only dispatch event for players / 仅为玩家派发事件
       this.dispatchEvent(new CustomEvent('playerdisconnected', {
         detail: {
           player: this.#game.teams[arr[0] - 2].players[arr[1]],
@@ -1184,7 +1182,7 @@ export class ApexWebAPI extends EventTarget {
       case ApexWebAPI.WEBAPI_EVENT_MATCHSETUP_SERVERID:
         if (count != 1) return false;
         this.#game.serverid = data_array[0];
-        this.dispatchEvent(new CustomEvent('matchsetup', {detail: {game: this.#game}})); // 一連のMATCHSETUP系の最後
+        this.dispatchEvent(new CustomEvent('matchsetup', {detail: {game: this.#game}})); // Last of MATCHSETUP series / MATCHSETUP系列的最后一个
         break;
 
       case ApexWebAPI.WEBAPI_EVENT_GAMESTATECHANGED:
@@ -1715,8 +1713,8 @@ export class ApexWebAPI extends EventTarget {
   }
 
   #procPlayer(teamid, squadindex, params) {
-    if (teamid == 0) return; // 何もしない
-    if (teamid == 1) { // オブザーバー処理
+    if (teamid == 0) return; // Do nothing / 不做任何操作
+    if (teamid == 1) { // Observer processing / 观察者处理
       const observers = this.#game.observers;
       while (squadindex >= observers.length) observers.push({id: observers.length});
       const observer = observers[squadindex];
@@ -1740,7 +1738,7 @@ export class ApexWebAPI extends EventTarget {
         team.kills = this.#countTeamKills(team);
       }
 
-      // 初回だけparamsを取得する
+      // Only get params on first time / 仅在首次获取params
       if (k == "hash") {
         if (!(v in this.#game.playerindex)) {
           this.#game.playerindex[v] = player;
@@ -1822,7 +1820,7 @@ export class ApexWebAPI extends EventTarget {
     for (const [k, v] of Object.entries(params)) {
       team[k] = v;
 
-      // 初回だけparamsを取得する
+      // Only get params on first time / 仅在首次获取params
       if (k == "name") {
         if (!('params' in team)) {
           team.params = {};
@@ -1872,16 +1870,16 @@ export class ApexWebAPI extends EventTarget {
       if (precheck == false) return reject('precheck failed');
       if (this.#socket.readyState != 1) return reject('socket.readyState is not 1');
 
-      // リプライ確認用
+      // For reply verification / 用于回复验证
       const sequence = buffer.sequence();
 
-      // 1秒以上かかる場合は失敗
+      // Fail if takes more than 1 second / 如果超过1秒则失败
       const timerid = setTimeout(() => {
         this.removeEventListener(eventname, handler);
         reject('request timeout');
       }, timeout);
 
-      // 結果の受信
+      // Receive result / 接收结果
       const handler = (event) => {
         const received_sequence = this.#getEventSequence(event);
         if (received_sequence == sequence) {
@@ -1891,10 +1889,10 @@ export class ApexWebAPI extends EventTarget {
         }
       };
 
-      // 受信設定
+      // Set up receiver / 设置接收器
       this.addEventListener(eventname, handler);
 
-      // データ送信
+      // Send data / 发送数据
       this.#socket.send(buffer.get());
     });
   }
@@ -1969,9 +1967,9 @@ export class ApexWebAPI extends EventTarget {
   }
 
   /**
-   * ゲーム内のチーム名を設定する
-   * @param {number} teamid チームID(0～)
-   * @param {string} teamname チーム名
+   * Set in-game team name / 设置游戏内团队名称
+   * @param {number} teamid Team ID (0~) / 团队ID(0~)
+   * @param {string} teamname Team name / 团队名称
    * @returns {Promise<CustomEvent>}
    */
   sendSetTeamName(teamid, teamname) {
@@ -1983,9 +1981,9 @@ export class ApexWebAPI extends EventTarget {
   }
 
   /**
-   * ゲーム内のチームのスポーンポイントを設定する
-   * @param {number} teamid チームID(0～)
-   * @param {number} spawnpoint チーム名
+   * Set in-game team spawn point / 设置游戏内团队出生点
+   * @param {number} teamid Team ID (0~) / 团队ID(0~)
+   * @param {number} spawnpoint Spawn point / 出生点
    * @returns {Promise<CustomEvent>}
    */
   sendSetSpawnPoint(teamid, spawnpoint) {
@@ -1997,8 +1995,8 @@ export class ApexWebAPI extends EventTarget {
   }
 
   /**
-   * カスタムマッチの最終リング除外エリアを設定する
-   * @param {number} section セクション(0:左上 1:右上 2:左下 3:右下 4:中央 5:除外なし)
+   * Set custom match end ring exclusion area / 设置自定义比赛最终圈排除区域
+   * @param {number} section Section (0:top-left 1:top-right 2:bottom-left 3:bottom-right 4:center 5:no exclusion) / 区域(0:左上 1:右上 2:左下 3:右下 4:中央 5:无排除)
    * @returns {Promise<CustomEvent>}
    */
   sendSetEndRingExclusion(section) {
@@ -2016,8 +2014,8 @@ export class ApexWebAPI extends EventTarget {
   }
 
   /**
-   * ゲームの進行・停止を切り替える
-   * @param {number} pretimer 動作させるまでにかかる時間(0.0～)
+   * Toggle game play/pause / 切换游戏进行/暂停
+   * @param {number} pretimer Time before action (0.0~) / 动作前的时间(0.0~)
    * @returns {Promise<CustomEvent>}
    */
   pauseToggle(pretimer) {

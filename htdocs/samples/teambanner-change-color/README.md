@@ -1,22 +1,12 @@
 # teambanner-change-color
 
-チームバナーの色を変更するサンプル。
+Sample to change team banner color.
 
-![image](https://github.com/user-attachments/assets/87547fcd-650c-4991-b3b7-8b9f5f24f38b)
+更改队伍横幅颜色的示例。
 
-## 使い方
+![image](https://github.com/user-attachments/assets/00000000-0000-0000-0000-000000000000)
 
-1. `custom-overlays`内のファイルを`htdocs/custom-overlays`フォルダにコピーする。
+## Usage / 使用方法
 
-### 色の定義
-
-```css
-.camera-team {
-	color: #000000; /* 文字色 */
-}
-
-canvas.apexrect {
-	--apexrect-background-color: #FFFFFF; /* 背景色 */
-	--apexrect-border-color: #FFE300; /* 左側の縁の色 */
-}
-```
+1. Copy files from `custom-overlays` to `htdocs/custom-overlays` folder. / 将 `custom-overlays` 中的文件复制到 `htdocs/custom-overlays` 文件夹。
+2. Edit `teambanner-append.css` to customize colors. / 编辑 `teambanner-append.css` 以自定义颜色。

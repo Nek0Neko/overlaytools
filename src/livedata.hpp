@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "common.hpp"
 
@@ -105,7 +105,7 @@ namespace livedata {
 		loadout_info loadout;
 	};
 
-	/* 保存するリザルト */
+	/* Result to save / 要保存的结果 */
 	struct player_result {
 		uint32_t kills = 0;
 		uint32_t damage_dealt = 0;

@@ -1,4 +1,4 @@
-﻿#include "websocket_thread.hpp"
+#include "websocket_thread.hpp"
 
 #include "log.hpp"
 
@@ -42,7 +42,7 @@ namespace app {
 			uint64_t recv_count = 0;
 			uint64_t send_count = 0;
 
-			// 接続待ち
+			// Wait for connection / 等待连接
 			if (!ws.acceptex())
 			{
 				log(logid_, L"Error: websocket_server::acceptex() failed.");
@@ -62,17 +62,17 @@ namespace app {
 
 					if (transferred == 0)
 					{
-						// 終了通知
+						// End notification / 结束通知
 						break;
 					}
 					else if (transferred == 1)
 					{
-						// PING通知
+						// PING notification / PING通知
 						ws.broadcast_ping();
 					}
 					else if (transferred == 2)
 					{
-						// wq到達
+						// wq arrival / wq到达
 						auto wq = ctx_.pull_wq(ctxid_);
 						while (wq->size() > 0)
 						{
@@ -87,7 +87,7 @@ namespace app {
 					}
 					else if (transferred == 3)
 					{
-						// statsの保存
+						// Save stats / 保存统计信息
 						uint64_t conn_count = ws.count();
 						ctx_.set_stats(ctxid_, conn_count, recv_count, send_count);
 					}
@@ -112,12 +112,12 @@ namespace app {
 						continue;
 					}
 
-					// 接続元の表示
+					// Display connection source / 显示连接源
 					log(logid_, L"Info: ACCEPT called. sock=%d.", sock);
 
 					::CreateIoCompletionPort((HANDLE)sock, compport_, (ULONG_PTR)ctx, 0);
 
-					// 読込待ち
+					// Wait for read / 等待读取
 					if (!ws.read(sock))
 					{
 						log(logid_, L"Error: websocket_server::read() failed.");
@@ -143,13 +143,13 @@ namespace app {
 
 							if (data)
 							{
-								// rqに渡す
+								// Pass to rq / 传递给rq
 								ctx_.push_rq(ctxid_, std::move(data));
 								recv_count++;
 							}
 						}
 
-						// 読込待ち
+						// Wait for read / 等待读取
 						if (!ws.read(ioctx->sock))
 						{
 							log(logid_, L"Error: websocket_server::read() failed.");
@@ -157,10 +157,10 @@ namespace app {
 					}
 					else if (ioctx->type == WS_TCP_SEND)
 					{
-						// 書き込み用に確保していたものをクリア
+						// Clear what was reserved for writing / 清除为写入保留的内容
 						ioctx->wbuf = nullptr;
 
-						// 残りのバッファを送信
+						// Send remaining buffer / 发送剩余缓冲区
 						std::shared_ptr<std::vector<uint8_t>> empty = nullptr;
 						if (!ws.send(ioctx->sock, empty))
 						{
@@ -180,7 +180,7 @@ namespace app {
 	{
 		window_ = _window;
 
-		// CompPort作成
+		// Create CompPort / 创建CompPort
 		compport_ = ::CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, 0);
 		if (compport_ == NULL)
 		{
@@ -188,7 +188,7 @@ namespace app {
 			return false;
 		}
 
-		// スレッド起動
+		// Start thread / 启动线程
 		thread_ = ::CreateThread(NULL, 0, proc_common, this, 0, NULL);
 		return thread_ != NULL;
 	}

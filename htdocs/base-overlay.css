@@ -1,24 +1,49 @@
+/* CSS Custom Properties (Variables) for overlay system */
+:root {
+    /* Dimensions */
+    --overlay-width: 1920px;
+    --overlay-height: 1080px;
+    --overlay-hide-offset-x: -3840px;
+    --overlay-hide-offset-y: -2160px;
+
+    /* Colors */
+    --overlay-bg-transparent: rgba(0, 0, 0, 0);
+    --overlay-bg-dark: rgba(0, 0, 0, 0.7);
+    --overlay-bg-darker: rgba(0, 0, 0, 0.85);
+    --overlay-text-primary: #ffffff;
+    --overlay-text-secondary: #cccccc;
+    --overlay-accent-color: #ff5722;
+
+    /* Typography */
+    --overlay-font-family: 'Segoe UI', 'Yu Gothic UI', sans-serif;
+
+    /* Animation */
+    --overlay-transition-fast: 0.2s;
+    --overlay-transition-normal: 0.3s;
+    --overlay-transition-slow: 0.5s;
+}
+
 * {
     margin: 0;
     padding: 0;
 }
 
 html {
-    width: 1920px;
-    height: 1080px;
+    width: var(--overlay-width);
+    height: var(--overlay-height);
 }
 
 body {
-    width: 1920px;
-    height: 1080px;
+    width: var(--overlay-width);
+    height: var(--overlay-height);
     overflow: clip;
-    background-color: rgba(0, 0, 0, 0);
-    font-family:'Segoe UI', 'Yu Gothic UI', sans-serif;
+    background-color: var(--overlay-bg-transparent);
+    font-family: var(--overlay-font-family);
 }
 
 div#overlays, div#overlays > * {
-    width: 1920px;
-    height: 1080px;
+    width: var(--overlay-width);
+    height: var(--overlay-height);
     overflow: clip;
     position: absolute;
     top: 0;
@@ -27,6 +52,6 @@ div#overlays, div#overlays > * {
 }
 
 div#overlays > .hide, div#overlays > .forcehide {
-    left: -3840px;
-    top: -2160px;
+    left: var(--overlay-hide-offset-x);
+    top: var(--overlay-hide-offset-y);
 }

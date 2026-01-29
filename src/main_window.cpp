@@ -1,4 +1,4 @@
-﻿#include "main_window.hpp"
+#include "main_window.hpp"
 
 #include "log.hpp"
 
@@ -234,7 +234,7 @@ namespace app
 		if (edit)
 		{
 			::SendMessageW(edit, WM_SETFONT, (WPARAM)font_, MAKELPARAM(1, 0));
-			// 文字数制限を取っ払う
+			// Remove character limit / 移除字符限制
 			::SendMessageW(edit, EM_SETLIMITTEXT, 0, 0);
 		}
 		return edit;
@@ -245,12 +245,12 @@ namespace app
 		HMENU menu;
 		POINT pt;
 
-		// TODO: currentにチェックを入れる
+		// TODO: Check current / TODO: 检查当前
 
 		menu = ::CreatePopupMenu();
 
 		// 
-		// ディスプレイ一覧を表示
+		// Display list of monitors / 显示显示器列表
 		bool selected = false;
 		for (UINT i = 0; i < _monitors.size(); ++i)
 		{
@@ -279,7 +279,7 @@ namespace app
 		case WM_CREATE:
 		{
 
-			// フォント作成
+			// Create font / 创建字体
 			font_ = ::CreateFontW(
 				12, 0, 0, 0, FW_REGULAR,
 				FALSE, FALSE, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS,
@@ -296,7 +296,7 @@ namespace app
 			add_tab_item(6, L"HTTP Get");
 
 			{
-				// タブの中身作成
+				// Create tab contents / 创建标签页内容
 				RECT rect;
 				RECT tabrect;
 				RECT tabitemrect;
@@ -306,7 +306,7 @@ namespace app
 				::SendMessageW(tab_, TCM_GETITEMRECT, 0, (LPARAM)&tabitemrect);
 				::SetWindowPos(tab_, NULL, 0, 0, tabrect.right - tabrect.left, tabitemrect.bottom - tabitemrect.top + 3, SWP_NOZORDER | SWP_NOMOVE);
 
-				// IP等の情報
+				// IP and other information / IP等信息
 				top = tabitemrect.bottom + 10;
 				items_.at(0).push_back(create_label(L"LiveAPI Websocket", 10, top, rect.right - 20, 12));
 				top += 12 + 5;
@@ -343,7 +343,7 @@ namespace app
 				top += 12 + 5;
 
 
-				// エディトボックス
+				// Edit boxes / 编辑框
 				edit_log_.at(0) = create_edit((HMENU)MID_EDIT_LOG_LIVEAPI, 10, tabitemrect.bottom + 10, rect.right - 20, rect.bottom - (20 + tabitemrect.bottom));
 				edit_log_.at(1) = create_edit((HMENU)MID_EDIT_LOG_CORE, 10, tabitemrect.bottom + 10, rect.right - 20, rect.bottom - (20 + tabitemrect.bottom));
 				edit_log_.at(2) = create_edit((HMENU)MID_EDIT_LOG_WEBAPI, 10,  tabitemrect.bottom + 10, rect.right - 20, rect.bottom - (20 + tabitemrect.bottom));
@@ -366,15 +366,15 @@ namespace app
 			current_tab_ = SendMessageW(tab_, TCM_GETCURSEL, 0, 0);
 			select_tab_item(current_tab_);
 
-			// スレッド開始
+			// Start threads / 启动线程
 			if (!core_thread_.run(window_)) return -1;
 			if (!duplication_thread_.run(window_)) return -1;
 
-			// 初期モニター設定
+			// Initial monitor setting / 初始显示器设置
 			monitor_ = ini_.get_monitor();
 			duplication_thread_.request_set_monitor(monitor_);
 
-			// タイマー設定
+			// Timer setting / 定时器设置
 			::SetTimer(window_, TIMER_ID_PING, 20000, nullptr); // 20s
 			::SetTimer(window_, TIMER_ID_CAPTURE, 100, nullptr); // 100ms
 			::SetTimer(window_, TIMER_ID_STATS, 1000, nullptr); // 1s
@@ -393,7 +393,7 @@ namespace app
 					RECT intersect;
 					if (::IntersectRect(&intersect, &frame_rect_, &rect))
 					{
-						// 取得した画像を表示
+						// Display captured image / 显示捕获的图像
 						PAINTSTRUCT ps;
 						HDC dc = ::BeginPaint(window_, &ps);
 						BITMAPINFO info;
@@ -418,7 +418,7 @@ namespace app
 		}
 
 		case WM_DESTROY:
-			// スレッド停止
+			// Stop threads / 停止线程
 			duplication_thread_.stop();
 			core_thread_.stop();
 
@@ -630,16 +630,16 @@ namespace app
 	{
 		if (_message == WM_NCCREATE)
 		{
-			// createwindowで指定したポイントからインスタンスを取得
+			// Get instance from the point specified in CreateWindow / 从CreateWindow指定的点获取实例
 			auto cs = reinterpret_cast<CREATESTRUCTW*>(_lparam);
 			auto instance = reinterpret_cast<main_window*>(cs->lpCreateParams);
 
 			instance->window_ = _window;
 
-			// ログの設定
+			// Log setting / 日志设置
 			log_set_window(_window);
 
-			// USERDATAにポインタ格納
+			// Store pointer in USERDATA / 在USERDATA中存储指针
 			::SetWindowLongPtrW(_window, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(instance));
 		}
 		else if(_message == WM_GETMINMAXINFO)
@@ -656,7 +656,7 @@ namespace app
 			return 0;
 		}
 
-		// 既にデータが格納されていたらインスタンスのプロシージャを呼び出す
+		// Call instance's procedure if data is already stored / 如果数据已存储则调用实例的过程
 		if (auto ptr = reinterpret_cast<main_window*>(::GetWindowLongPtrW(_window, GWLP_USERDATA)))
 		{
 			return ptr->window_proc(_message, _wparam, _lparam);

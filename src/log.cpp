@@ -1,4 +1,4 @@
-﻿#include "log.hpp"
+#include "log.hpp"
 
 #include <iomanip>
 #include <sstream>
@@ -11,7 +11,7 @@ namespace {
 
 	std::wstring get_current_timestring()
 	{
-		// 日付・時刻を取得する
+		// Get date and time / 获取日期和时间
 		std::time_t t = std::time(nullptr);
 		std::tm tm;
 		errno_t error;
@@ -55,9 +55,9 @@ namespace {
 			{
 				break;
 			}
-			buf.resize(size + 128); // 128文字増やす
+			buf.resize(size + 128); // Increase by 128 characters / 增加128个字符
 			size += 128;
-			if (buf.size() > 4096) break; // 増やすのは4096文字迄
+			if (buf.size() > 4096) break; // Max 4096 characters / 最多4096个字符
 		} while (true);
 
 		return buf;

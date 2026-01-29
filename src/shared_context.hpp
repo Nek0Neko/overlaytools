@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "common.hpp"
 
@@ -36,10 +36,10 @@ namespace app {
 		shared_context();
 		~shared_context();
 
-		// コピー不可
+		// Non-copyable / 禁止拷贝
 		shared_context(const shared_context&) = delete;
 		shared_context& operator = (const shared_context&) = delete;
-		// ムーブ不可
+		// Non-movable / 禁止移动
 		shared_context(shared_context&&) = delete;
 		shared_context& operator = (shared_context&&) = delete;
 

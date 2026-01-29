@@ -1,4 +1,4 @@
-﻿#include "config_ini.hpp"
+#include "config_ini.hpp"
 
 #include "utils.hpp"
 
@@ -73,7 +73,7 @@ namespace app {
 	std::string config_ini::get_liveapi_ipaddress()
 	{
 		auto ip = get_ip_address(liveapi_section_name, L"IP", L"127.0.0.1");
-		set_liveapi_ipaddress(ip); // 取得時に書き込み実施
+		set_liveapi_ipaddress(ip); // Write when retrieving / 获取时写入
 		return ip;
 	}
 
@@ -86,7 +86,7 @@ namespace app {
 	{
 		uint16_t port = get_uint16(liveapi_section_name, L"PORT", 20080);
 		if (port <= 1024) port = 20080;
-		set_liveapi_port(port); // 取得時に書き込み実施
+		set_liveapi_port(port); // Write when retrieving / 获取时写入
 		return port;
 	}
 
@@ -99,7 +99,7 @@ namespace app {
 	std::string config_ini::get_webapi_ipaddress()
 	{
 		auto ip = get_ip_address(webapi_section_name, L"IP", L"127.0.0.1");
-		set_webapi_ipaddress(ip); // 取得時に書き込み実施
+		set_webapi_ipaddress(ip); // Write when retrieving / 获取时写入
 		return ip;
 	}
 
@@ -112,7 +112,7 @@ namespace app {
 	{
 		uint16_t port = get_uint16(webapi_section_name, L"PORT", 20081);
 		if (port <= 1024) port = 20081;
-		set_webapi_port(port); // 取得時に書き込み実施
+		set_webapi_port(port); // Write when retrieving / 获取时写入
 		return port;
 	}
 
@@ -126,13 +126,13 @@ namespace app {
 	{
 		uint16_t maxcon = get_uint16(webapi_section_name, L"CONNECTIONS", 16);
 		if (maxcon == 0 || 64 < maxcon) maxcon = 16;
-		set_webapi_maxconnection(maxcon); // 取得時に書き込み実施
+		set_webapi_maxconnection(maxcon); // Write when retrieving / 获取时写入
 		return maxcon;
 	}
 
 	bool config_ini::set_webapi_maxconnection(uint16_t _maxcon)
 	{
-		if (_maxcon == 0 || 64 < _maxcon) return false; // 0～64
+		if (_maxcon == 0 || 64 < _maxcon) return false; // 0 to 64 / 0到64
 		return set_uint16(webapi_section_name, L"CONNECTIONS", _maxcon);
 	}
 

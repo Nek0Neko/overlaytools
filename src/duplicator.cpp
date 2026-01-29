@@ -1,4 +1,4 @@
-﻿#include "duplicator.hpp"
+#include "duplicator.hpp"
 
 #include "log.hpp"
 
@@ -160,7 +160,7 @@ namespace app {
 				monitor += ::trim(::get_monitor_name(odesc.Monitor));
 				monitor += L"]";
 				
-				// 実際にAPIを使えるか試してみる
+				// Try if API is actually usable / 尝试API是否可用
 				CComPtr<IDXGIOutput1> output1;
 				CComPtr<IDXGIOutputDuplication> output_duplication;
 
@@ -170,14 +170,14 @@ namespace app {
 				hr = output1->DuplicateOutput(device_, &output_duplication);
 				if (FAILED(hr)) continue;
 
-				// サイズの確認
+				// Check size / 检查大小
 				DXGI_OUTDUPL_DESC dupl_desc;
 				output_duplication->GetDesc(&dupl_desc);
 
 				if (dupl_desc.ModeDesc.Width != REQUIRED_WIDTH) continue;
 				if (dupl_desc.ModeDesc.Height != REQUIRED_HEIGHT) continue;
 
-				// 使える場合はリストに追加
+				// Add to list if usable / 如果可用则添加到列表
 				monitors.push_back(adapter_desc + L" - " + monitor);
 			}
 		}
@@ -187,7 +187,7 @@ namespace app {
 			monitors.push_back(monitor_);
 		}
 
-		// ソート
+		// Sort / 排序
 		std::sort(monitors.begin(), monitors.end());
 
 		return monitors;
@@ -227,7 +227,7 @@ namespace app {
 
 					if (name == monitor_)
 					{
-						// 対象のモニターと一致
+						// Match with target monitor / 与目标显示器匹配
 						CComPtr<IDXGIOutput1> output1;
 
 						hr = output->QueryInterface(IID_PPV_ARGS(&output1));
@@ -236,7 +236,7 @@ namespace app {
 						hr = output1->DuplicateOutput(device_, &output_duplication_);
 						if (FAILED(hr)) return hr;
 
-						// サイズの確認
+						// Check size / 检查大小
 						DXGI_OUTDUPL_DESC dupl_desc;
 						output_duplication_->GetDesc(&dupl_desc);
 
@@ -249,7 +249,7 @@ namespace app {
 			}
 		}
 
-		// 対象のモニタが見つからない場合は失敗
+		// Fail if target monitor not found / 如果找不到目标显示器则失败
 		return HRESULT_FROM_WIN32(ERROR_NOT_FOUND);
 	}
 
@@ -324,7 +324,7 @@ namespace app {
 
 			rsize_t copybytes = std::min<rsize_t>(CAPTURE_SQUARE_WIDTH * 4, resource.RowPitch);
 
-			// ポインタの準備
+			// Prepare pointers / 准备指针
 			const auto points = std::array<std::pair<size_t, size_t>, CAPTURE_COUNT>({
 				{   42,  734 }, //   0: teamnameframe
 				{   86,   98 }, //  32: team1frame
@@ -341,7 +341,7 @@ namespace app {
 				BYTE* sptr = reinterpret_cast<BYTE*>(resource.pData) + y * resource.RowPitch + x * 4;
 				uint32_t* dptr = _buffer.data() + CAPTURE_WIDTH * (CAPTURE_HEIGHT - 1) + i * CAPTURE_SQUARE_WIDTH;
 
-				// BMPの順序でコピーする
+				// Copy in BMP order / 按BMP顺序复制
 				for (size_t tmp_y = y; tmp_y < y + CAPTURE_HEIGHT && tmp_y < height_; ++tmp_y)
 				{
 					std::memcpy(dptr, sptr, copybytes);
@@ -369,7 +369,7 @@ namespace app {
 				switch (hr)
 				{
 				case E_ACCESSDENIED:
-					// 管理者権限のメッセージボックス表示中等
+					// While admin permission message box is displayed, etc. / 管理员权限消息框显示中等
 					return GetFrameError::Error_Action_Skip;
 				}
 				return GetFrameError::Error_Action_Exit;

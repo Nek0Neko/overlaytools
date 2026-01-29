@@ -31,5 +31,4 @@ export function initOverlay(params = {}) {
         "singleresultdetail": new SingleResultDetail()
     }
     const overlay = new TemplateOverlayHandler(params);
-    console.log(overlay);
 }

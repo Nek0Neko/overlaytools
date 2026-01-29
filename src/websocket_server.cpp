@@ -1,4 +1,4 @@
-﻿#include "websocket_server.hpp"
+#include "websocket_server.hpp"
 
 #include "log.hpp"
 
@@ -115,7 +115,7 @@ namespace app {
 		SOCKADDR_IN* l;
 		SOCKADDR_IN* r;
 		INT llen = sizeof(SOCKADDR_IN);
-		INT rlen = sizeof(SOCKADDR_IN); r->sin_addr;
+		INT rlen = sizeof(SOCKADDR_IN);
 		::GetAcceptExSockaddrs(_buffer, _len, llen + 16, rlen + 16, reinterpret_cast<sockaddr **>(&l), &llen, reinterpret_cast<sockaddr**>(&r), &rlen);
 
 		::WSAAddressToStringW((SOCKADDR *)r, rlen, NULL, s, &slen);
@@ -382,7 +382,7 @@ namespace app {
 			return false;
 		}
 
-		// base64エンコード
+		// Base64 encode / Base64编码
 		auto b64 = base64encode_from_sha1(sha1);
 		log(logid_, L"Info: >> Sec-WebSocket-Accept: %s", s_to_ws(b64).c_str());
 
@@ -399,21 +399,21 @@ namespace app {
 			return false;
 		}
 
-		// handshake完了
+		// Handshake completed / 握手完成
 		wsconn.handshake = true;
 
 		return true;
 	}
 
 	void websocket_server::pong(wsconn_t& wsconn, const uint8_t* data, int len) {
-		// FINがない
+		// No FIN bit / 无FIN位
 		if ((data[0] & 0x80) == 0) return;
 
-		// PINGじゃない
+		// Not a PING / 不是PING
 		char opcode = data[0] & 0xf;
 		if (opcode != 0x9) return;
 
-		// opcodeだけ変えて返送
+		// Change opcode and send back / 修改opcode并返回
 		auto buf = std::make_shared<std::vector<uint8_t>>(data, data + len);
 		buf->at(0) = ((buf->at(0) & 0xf0) | 0xa);
 		send(wsconn.sock, buf);
@@ -466,20 +466,20 @@ namespace app {
 		{
 			if (x.sock != _sock) continue;
 			
-			// キューに追加
+			// Add to queue / 添加到队列
 			if (_data) x.wq.push(_data);
 
-			if (x.iow_ctx.wbuf) return true; // 既に送信中
+			if (x.iow_ctx.wbuf) return true; // Already sending / 正在发送
 
-			if (x.wq.size() == 0) return true; // キューが空になった
+			if (x.wq.size() == 0) return true; // Queue is empty / 队列为空
 
-			// キューの先頭から取り出し
+			// Get from front of queue / 从队列头部取出
 			x.iow_ctx.wbuf = x.wq.front();
 			x.wq.pop();
 
-			if (!x.iow_ctx.wbuf) return true; // 送信要求データが空
+			if (!x.iow_ctx.wbuf) return true; // Send request data is empty / 发送请求数据为空
 
-			// バッファに情報を格納
+			// Store info in buffer / 将信息存储到缓冲区
 			std::memset(&x.iow_ctx.ov, 0, sizeof(WSAOVERLAPPED));
 			x.iow_ctx.sock = _sock;
 			x.iow_ctx.buf.buf = reinterpret_cast<CHAR*>(x.iow_ctx.wbuf->data());
@@ -495,7 +495,7 @@ namespace app {
 			auto error = ::WSAGetLastError();
 			if (error != ERROR_IO_PENDING)
 			{
-				// その他エラー
+				// Other error / 其他错误
 				log(logid_, L"Error: WSASend() failed. ErrorCode=%d", error);
 				close(_sock);
 				return false;
@@ -511,7 +511,7 @@ namespace app {
 		{
 			if (x.sock != _sock) continue;
 
-			// バッファに情報を格納
+			// Store info in buffer / 将信息存储到缓冲区
 			std::memset(&x.ior_ctx.ov, 0, sizeof(WSAOVERLAPPED));
 			x.ior_ctx.sock = _sock;
 
@@ -539,16 +539,16 @@ namespace app {
 
 	void websocket_server::send_binary(SOCKET _sock, const std::vector<uint8_t>& _data, size_t _len)
 	{
-		/* ヘッダサイズを決める */
+		/* Determine header size / 确定头部大小 */
 		size_t header_size = 2;
 		if (_len > 0xffff) header_size = 10;
 		else if (_len > 0x7d) header_size = 4;
 
-		/* メモリを確保 */
+		/* Allocate memory / 分配内存 */
 		auto sbuf = std::make_shared<std::vector<uint8_t>>();
 		sbuf->resize(_len + header_size);
 
-		/* ヘッダ格納 */
+		/* Store header / 存储头部 */
 		sbuf->at(0) = 0x82;
 		if (_len > 0xffff) {
 			sbuf->at(1) = 0x7f;
@@ -564,7 +564,7 @@ namespace app {
 			sbuf->at(1) = (_len & 0x7F);
 		}
 
-		/* ペイロードコピー */
+		/* Copy payload / 复制有效载荷 */
 		std::copy(_data.begin(), _data.begin() + _len, sbuf->begin() + header_size);
 
 		/* 送信 */
@@ -623,7 +623,7 @@ namespace app {
 
 	std::queue<std::unique_ptr<std::vector<uint8_t>>> websocket_server::receive_data(SOCKET _sock, const std::vector<uint8_t>& _data, int _len)
 	{
-		// 入力データの出力
+		// Log input data / 记录输入数据
 		log(logid_, L"Info: sock=%d,len=%d", _sock, _len);
 		std::queue<std::unique_ptr<std::vector<uint8_t>>> r;
 		
@@ -631,7 +631,7 @@ namespace app {
 		{
 			if (x.sock != _sock) continue;
 
-			/* handshake未実施の場合は実施 */
+			/* Perform handshake if not done / 如果未握手则执行握手 */
 			if (x.handshake == 0)
 			{
 				// handshake実施
@@ -643,27 +643,43 @@ namespace app {
 				return r;
 			}
 
+			// Input validation: check message size limit
+			if (static_cast<size_t>(_len) > ws_security::MAX_MESSAGE_SIZE)
+			{
+				log(logid_, L"Warning: message size %d exceeds limit, closing connection.", _len);
+				close(_sock);
+				return r;
+			}
+
 			int offset = 0;
 			size_t remain = _len;
 			while (remain)
 			{
 				if (x.packet == nullptr)
 				{
-					x.packet.reset(new wspacket());
+					x.packet = std::make_unique<wspacket>();
 				}
 				if (x.packet->parse(_data, _len, offset, remain))
 				{
 
 					if (x.packet && x.packet->filled())
 					{
+						// Input validation: check payload size
+						if (x.packet->payload_length() > ws_security::MAX_MESSAGE_SIZE)
+						{
+							log(logid_, L"Warning: payload size exceeds limit, closing connection.");
+							close(_sock);
+							return r;
+						}
+
 						std::unique_ptr<wspacket> packet = std::move(x.packet);
 
-						// パケット情報出力
+						// Output packet info / 输出数据包信息
 						log(logid_, L"Info: sock=%d,opcode=%d,fin=%d,len=%d,remain=%d", _sock, packet->opcode, packet->fin ? 1 : 0, packet->payload_length(), remain);
 
 						switch (packet->opcode)
 						{
-						case 0x0: // 継続フレーム
+						case 0x0: // Continuation frame / 继续帧
 							if (x.buffer != nullptr)
 							{
 								x.buffer->reserve(x.buffer->size() + packet->data->size());
@@ -674,25 +690,25 @@ namespace app {
 								}
 							}
 							break;
-						case 0x1: // テキストフレーム
-							x.buffer.reset(new std::vector<uint8_t>());
+						case 0x1: // Text frame / 文本帧
+							x.buffer = std::make_unique<std::vector<uint8_t>>();
 							break;
-						case 0x2: // バイナリフレーム
-							x.buffer.reset(new std::vector<uint8_t>());
+						case 0x2: // Binary frame / 二进制帧
+							x.buffer = std::make_unique<std::vector<uint8_t>>();
 							if (packet->fin)
 							{
-								/* 単独 */
+								/* Single frame / 单帧 */
 								r.push(std::move(packet->data));
 							}
 							else
 							{
-								/* 継続 */
+								/* Continuation / 继续 */
 								x.buffer->reserve(x.buffer->size() + packet->data->size());
 								x.buffer->insert(x.buffer->end(), packet->data->begin(), packet->data->end());
 							}
 							break;
 						case 0xa: // pong
-							// 何もしない
+							// Do nothing / 不做任何事
 							break;
 						case 0x9: // ping
 							pong(x, _data.data() + offset, _len - offset - remain);

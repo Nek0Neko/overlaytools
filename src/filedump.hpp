@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "common.hpp"
 
@@ -24,10 +24,10 @@ namespace app {
 		filedump();
 		~filedump();
 
-		// コピー不可
+		// Non-copyable / 禁止拷贝
 		filedump(const filedump&) = delete;
 		filedump& operator = (const filedump&) = delete;
-		// ムーブ不可
+		// Non-movable / 禁止移动
 		filedump(filedump&&) = delete;
 		filedump& operator = (filedump&&) = delete;
 

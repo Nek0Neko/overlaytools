@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "common.hpp"
 
@@ -21,13 +21,13 @@ namespace app
 		config_ini();
 		~config_ini();
 
-		// LiveAPI側の設定
+		// LiveAPI settings / LiveAPI设置
 		std::string get_liveapi_ipaddress();
 		bool set_liveapi_ipaddress(const std::string& _ip);
 		uint16_t get_liveapi_port();
 		bool set_liveapi_port(uint16_t _port);
 
-		// WebAPI側の設定
+		// WebAPI settings / WebAPI设置
 		std::string get_webapi_ipaddress();
 		bool set_webapi_ipaddress(const std::string& _ip);
 		uint16_t get_webapi_port();
@@ -35,7 +35,7 @@ namespace app
 		uint16_t get_webapi_maxconnection();
 		bool set_webapi_maxconnection(uint16_t _maxcon);
 
-		// 画面キャプチャ設定
+		// Screen capture settings / 屏幕捕获设置
 		std::wstring get_monitor();
 		bool set_monitor(const std::wstring& _monitor);
 	};

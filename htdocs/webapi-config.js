@@ -10,14 +10,14 @@ import {
 } from "./overlay-common.js";
 
 class WebAPIConfigBase {
-    /** @type {Object.<string, HTMLElement>} 関連するノードを格納 */
+    /** @type {Object.<string, HTMLElement>} Store related nodes / 存储相关节点 */
     nodes;
-    /** @type {string} getElementByIdを行う際の接頭辞 */
+    /** @type {string} Prefix when calling getElementById / 调用getElementById时的前缀 */
     prefix;
 
     /**
-     * コンストラクタ
-     * @param {string} prefix getElementByIdを行う際の接頭辞
+     * Constructor / 构造函数
+     * @param {string} prefix Prefix when calling getElementById / 调用getElementById时的前缀
      */
     constructor(prefix) {
         this.nodes = {};
@@ -25,9 +25,9 @@ class WebAPIConfigBase {
     }
 
     /**
-     * HTMLノードを取得し、nodesに格納する
-     * @param {string} name 取得するノードのIDに含まれる文字列
-     * @returns {HTMLElement|null} 取得したノード、失敗した場合はnull
+     * Get HTML node and store in nodes / 获取HTML节点并存储到nodes
+     * @param {string} name String included in node ID to retrieve / 要获取的节点ID中包含的字符串
+     * @returns {HTMLElement|null} Retrieved node, null if failed / 获取的节点,失败时为null
      */
     getNode(name) {
         const node = document.getElementById(this.prefix + name);
@@ -41,15 +41,15 @@ class WebAPIConfigBase {
 
 class WebAPIConnectionStatus extends WebAPIConfigBase {
     /**
-     * コンストラクタ
+     * Constructor / 构造函数
      */
     constructor() {
         super('connection-status-webapi-');
         this.getNode('state');
     }
     /**
-     * WebAPIの接続ステータスを設定する
-     * @param {string} state 接続状況
+     * Set WebAPI connection status / 设置WebAPI连接状态
+     * @param {string} state Connection status / 连接状态
      */
     setStatus(state) {
         this.nodes.state.innerText = state;
@@ -58,7 +58,7 @@ class WebAPIConnectionStatus extends WebAPIConfigBase {
 
 class LiveAPIConnectionStatus extends WebAPIConfigBase {
     /**
-     * コンストラクタ
+     * Constructor / 构造函数
      */
     constructor() {
         super('connection-status-liveapi-');
@@ -67,10 +67,10 @@ class LiveAPIConnectionStatus extends WebAPIConfigBase {
         this.getNode('send');
     }
     /**
-     * LiveAPIの接続ステータスを設定する
-     * @param {number} conn コネクション数
-     * @param {number} recv 受信パケット数
-     * @param {number} send 送信パケット数
+     * Set LiveAPI connection status / 设置LiveAPI连接状态
+     * @param {number} conn Number of connections / 连接数
+     * @param {number} recv Number of received packets / 接收数据包数
+     * @param {number} send Number of sent packets / 发送数据包数
      */
     setStatus(conn, recv, send) {
         this.nodes.connection.innerText = conn;
@@ -84,7 +84,7 @@ class LiveAPIConfig extends WebAPIConfigBase {
     #callback;
     #url;
     /**
-     * コンストラクタ
+     * Constructor / 构造函数
      */
     constructor(url) {
         super('liveapi-config-');
@@ -118,18 +118,18 @@ class LiveAPIConfig extends WebAPIConfigBase {
     }
 
     /**
-     * configを設定する
-     * @param {object} config 設定オブジェクト
+     * Set config / 设置配置
+     * @param {object} config Config object / 配置对象
      */
     setConfig(config) {
         this.#config = config;
 
-        // 現在表示中の接続先をクリア
+        // Clear currently displayed connections / 清除当前显示的连接
         while (this.nodes.connections.children.length > 0) {
             this.nodes.connections.removeChild(this.nodes.connections.lastChild);
         }
 
-        // config中の接続先を追加
+        // Add connections from config / 添加配置中的连接
         if ('servers' in this.#config) {
             for (const server of this.#config.servers) {
                 const div = document.createElement('div');
@@ -153,10 +153,10 @@ class LiveAPIConfig extends WebAPIConfigBase {
 
     
     /**
-     * LiveAPIの接続ステータスを設定する
-     * @param {number} conn コネクション数
-     * @param {number} recv 受信パケット数
-     * @param {number} send 送信パケット数
+     * Set LiveAPI connection status / 设置LiveAPI连接状态
+     * @param {number} conn Number of connections / 连接数
+     * @param {number} recv Number of received packets / 接收数据包数
+     * @param {number} send Number of sent packets / 发送数据包数
      */
     setStatus(conn, recv, send) {
         this.nodes.connection.innerText = conn;
@@ -168,11 +168,11 @@ class LiveAPIConfig extends WebAPIConfigBase {
 class LanguageSelect extends WebAPIConfigBase {
     /** @type {HTMLElement[]} */
     #languages;
-    /** コンストラクタ */
+    /** Constructor / 构造函数 */
     constructor() {
         super('language-select-');
 
-        // 言語ノードの取得
+        // Get language nodes / 获取语言节点
         this.#languages = [];
         for (const node of document.querySelectorAll('#lang-select > span')) {
             this.#languages.push(node);
@@ -185,7 +185,7 @@ class LanguageSelect extends WebAPIConfigBase {
             });
         }
 
-        // 保存されている言語選択による設定
+        // Set by saved language selection / 根据保存的语言选择设置
         const savedlang = window.localStorage.getItem("lang");
         for (const node of this.#languages) {
             if (node.innerText == savedlang) {
@@ -194,7 +194,7 @@ class LanguageSelect extends WebAPIConfigBase {
             }
         }
 
-        // ブラウザ言語設定による初期選択
+        // Initial selection by browser language setting / 根据浏览器语言设置初始选择
         const browserlang = window.navigator.languages[0];
         for (const node of this.#languages) {
             if (node.innerText == browserlang) {
@@ -207,8 +207,8 @@ class LanguageSelect extends WebAPIConfigBase {
     }
 
     /**
-     * 表示言語を設定する
-     * @param {string} lang 言語(en/ja)
+     * Set display language / 设置显示语言
+     * @param {string} lang Language (en/ja) / 语言(en/ja)
      */
     #setLanguage(lang) {
         const display_none = [];
@@ -223,7 +223,7 @@ class LanguageSelect extends WebAPIConfigBase {
                 node.classList.remove("lang_selected");
             }
         }
-        // CSSに反映
+        // Apply to CSS / 应用到CSS
         for (const sheet of document.styleSheets) {
             for (const rule of sheet.cssRules) {
                 if (display_none.indexOf(rule.selectorText) >= 0) {
@@ -238,21 +238,21 @@ class LanguageSelect extends WebAPIConfigBase {
 }
 
 class TournamentCalculationMethod extends WebAPIConfigBase {
-    /** @type {Object.<string, HTMLElement>[]} 入力要素を保持 */
+    /** @type {Object.<string, HTMLElement>[]} Hold input elements / 保存输入元素 */
     #forms;
     /**
-     * プレイヤー名の設定ボタンが押された場合のコールバック
+     * Callback when player name setting button is pressed / 按下玩家名称设置按钮时的回调
      * @callback dumpedCalcMethodCallabck
-     * @param {object} calcmethod 計算方法のオブジェクト
+     * @param {object} calcmethod Calculation method object / 计算方法对象
      */
 
     /**
-     * コールバック関数
-     * @param {dumpedCalcMethodCallabck} func コールバック関数
+     * Callback function / 回调函数
+     * @param {dumpedCalcMethodCallabck} func Callback function / 回调函数
      */
     #callback;
     /**
-     * コンストラクタ
+     * Constructor / 构造函数
      */
     constructor() {
         super('tournament-calc-');
@@ -265,7 +265,7 @@ class TournamentCalculationMethod extends WebAPIConfigBase {
         this.#appendTableRow();
         this.#callback = undefined;
 
-        // イベント
+        // Events / 事件
         this.nodes.count.addEventListener('change', (ev) => {
             this.#changeTableSize(this.#getMatchCount());
         });
@@ -276,7 +276,7 @@ class TournamentCalculationMethod extends WebAPIConfigBase {
     }
 
     /**
-     * テーブルの末尾に要素を追加する(初期状態)
+     * Add element to end of table (initial state) / 向表格末尾添加元素(初始状态)
      */
     #appendTableRow() {
         const form = {};
@@ -286,7 +286,7 @@ class TournamentCalculationMethod extends WebAPIConfigBase {
         tr.appendChild(document.createElement('td'));
         tr.children[0].innerText = index;
 
-        // 設定
+        // Settings / 设置
         const td = tr.children[1];
 
         {
@@ -297,16 +297,16 @@ class TournamentCalculationMethod extends WebAPIConfigBase {
             const label_text = document.createElement('span');
             const input = document.createElement('input');
 
-            // 設定
+            // Settings / 设置
             checkbox.type = "checkbox";
             input.type = "number";
             input.min = 0;
             input.max = 60;
 
-            // テキスト設定
+            // Text settings / 文本设置
             label_text.innerHTML =
                 '<span class="en">kill points cap:</span>' +
-                '<span class="ja">キルポイント上限:</span>';
+                '<span class="zh">击杀积分上限:</span>';
             input.value = 9;
 
             // append
@@ -328,16 +328,16 @@ class TournamentCalculationMethod extends WebAPIConfigBase {
             const label_text = document.createElement('span');
             const input = document.createElement('input');
 
-            // 設定
+            // Settings / 设置
             checkbox.type = "checkbox";
             input.type = "number";
             input.min = 2;
             input.max = 4;
 
-            // テキスト設定
+            // Text settings / 文本设置
             label_text.innerHTML = 
                 '<span class="en">kill points amp:</span>' +
-                '<span class="ja">キルポイント倍率:</span>';
+                '<span class="zh">击杀积分倍率:</span>';
             input.value = 2;
             // append
             label.appendChild(checkbox);
@@ -358,15 +358,15 @@ class TournamentCalculationMethod extends WebAPIConfigBase {
             const label_text = document.createElement('span');
             const input = document.createElement('input');
 
-            // 設定
+            // Settings / 设置
             checkbox.type = "checkbox";
             input.type = "text";
             input.placeholder = "comma spalated points [ex. 12, 9, 7, 5, 4, 3, 3, 2, 2, 2, 1, 1, 1, 1, 1]";
 
-            // テキスト設定
+            // Text settings / 文本设置
             label_text.innerHTML = 
                 '<span class="en">custom placement points table:</span>' +
-                '<span class="ja">カスタム順位ポイント:</span>';
+                '<span class="zh">自定义排名积分:</span>';
 
             // append
             label.appendChild(checkbox);
@@ -384,7 +384,7 @@ class TournamentCalculationMethod extends WebAPIConfigBase {
     }
 
     /**
-     * テーブルから末尾要素を削除する
+     * Remove last element from table / 从表格删除最后一个元素
      */
     #popTableRow() {
         this.#forms.pop();
@@ -392,8 +392,8 @@ class TournamentCalculationMethod extends WebAPIConfigBase {
     }
 
     /**
-     * テーブルの行数を変える
-     * @param {number} count 列数
+     * Change number of table rows / 改变表格行数
+     * @param {number} count Number of columns / 列数
      */
     #changeTableSize(count) {
         while (true) {
@@ -408,8 +408,8 @@ class TournamentCalculationMethod extends WebAPIConfigBase {
     }
 
     /**
-     * select要素からマッチ数を取得する
-     * @returns {number} マッチ数(1～16)
+     * Get match count from select element / 从select元素获取比赛数
+     * @returns {number} Match count (1~16) / 比赛数(1~16)
      */
     #getMatchCount() {
         const value = parseInt(this.nodes.count.value, 10);
@@ -419,12 +419,12 @@ class TournamentCalculationMethod extends WebAPIConfigBase {
     }
 
     /**
-     * 現在の設定・選択状況をObjectにしてコールバック関数を呼ぶ
+     * Convert current settings/selection to Object and call callback / 将当前设置/选择转换为对象并调用回调
      */
     #dumpCalcMethod() {
         const dumpobject = {};
 
-        // 先行ポイント
+        // Advance points / 先行积分
         {
             const text = this.nodes.advancepoints.value;
             const values = text.split(/,/).map((x) => {
@@ -435,7 +435,7 @@ class TournamentCalculationMethod extends WebAPIConfigBase {
             dumpobject.advancepoints = values;
         }
 
-        // マッチポイント
+        // Match points / 赛点
         {
             const text = this.nodes.matchpoints.value;
             let value = parseInt(text, 10);
@@ -484,7 +484,7 @@ class TournamentCalculationMethod extends WebAPIConfigBase {
     }
 
     /**
-     * トーナメントparamsに含まれるパラメータから現在の設定を表示に反映する
+     * Reflect current settings from parameters in tournament params to display / 将锦标赛参数中的参数反映到当前设置显示
      * @param {object} params 
      */
     importCalcMethod(params) {
@@ -502,7 +502,7 @@ class TournamentCalculationMethod extends WebAPIConfigBase {
             if (value < 0) value = 0;
             this.nodes.matchpoints.value = value;
         } else {
-            this.nodes.matchpoints.value = 0; // デフォルト値
+            this.nodes.matchpoints.value = 0; // Default value / 默认值
         }
 
         for (const [k, v] of Object.entries(params)) {
@@ -531,8 +531,8 @@ class TournamentCalculationMethod extends WebAPIConfigBase {
     }
 
     /**
-     * コールバック関数を定義する
-     * @param {dumpedCalcMethodCallabck} func 計算方法を含むオブジェクトをdumpした際に呼び出される関数
+     * Define callback function / 定义回调函数
+     * @param {dumpedCalcMethodCallabck} func Function called when dumping object containing calculation method / 导出包含计算方法的对象时调用的函数
      */
     setDumpedCalcMethodCallback(func) {
         if (typeof func == "function") {
@@ -541,7 +541,7 @@ class TournamentCalculationMethod extends WebAPIConfigBase {
     }
 
     /**
-     * 選択状況をクリアする
+     * Clear selection status / 清除选择状态
      */
     clear() {
         this.nodes.advancepoints.value = "";
@@ -629,13 +629,13 @@ class ObserverConfig {
 }
 
 class PlayerName extends WebAPIConfigBase {
-    /** @type {Object.<string, HTMLElement>} hashに対応するテーブル列を保持 */
+    /** @type {Object.<string, HTMLElement>} Hold table column corresponding to hash / 保存与hash对应的表格列 */
     #players;
     /** @type {setPlayerNameCallback} */
     #callback;
 
     /**
-     * コンストラクタ
+     * Constructor / 构造函数
      */
     constructor() {
         super('player-name-');
@@ -645,8 +645,8 @@ class PlayerName extends WebAPIConfigBase {
     }
 
     /**
-     * 新しいHTMLElementを作る
-     * @param {string} hash プレイヤーID(hash)
+     * Create new HTMLElement / 创建新的HTMLElement
+     * @param {string} hash Player ID (hash) / 玩家ID(哈希)
      */
     #createTableRow(hash) {
         const tr = document.createElement('tr');
@@ -659,12 +659,12 @@ class PlayerName extends WebAPIConfigBase {
         // PlayerID格納
         tr.children[0].innerText = hash;
 
-        // プレイヤー名更新用
+        // For updating player name / 用于更新玩家名称
         const input = document.createElement('input');
         const button = document.createElement('button')
         tr.children[3].appendChild(input);
 
-        // ボタンの設定
+        // Button settings / 按钮设置
         tr.children[3].appendChild(button);
         button.innerText = 'set';
         button.addEventListener('click', () => {
@@ -679,15 +679,15 @@ class PlayerName extends WebAPIConfigBase {
     }
 
     /**
-     * プレイヤー名の設定ボタンが押された場合のコールバック
+     * Callback when player name setting button is pressed / 按下玩家名称设置按钮时的回调
      * @callback setPlayerNameCallback
-     * @param {string} hash プレイヤーID(hash)
-     * @param {string} name 設定するプレイヤー名
+     * @param {string} hash Player ID (hash) / 玩家ID(哈希)
+     * @param {string} name Player name to set / 要设置的玩家名称
      */
 
     /**
-     * コールバック関数
-     * @param {setPlayerNameCallback} func コールバック関数
+     * Callback function / 回调函数
+     * @param {setPlayerNameCallback} func Callback function / 回调函数
      */
     setCallback(func) {
         if (typeof func == 'function') {
@@ -696,9 +696,9 @@ class PlayerName extends WebAPIConfigBase {
     }
 
     /**
-     * 現在表示されているバナー用プレイヤー名取得
-     * @param {string} hash プレイヤーID(hash)
-     * @returns {string} プレイヤー名
+     * Get currently displayed banner player name / 获取当前显示的横幅玩家名称
+     * @param {string} hash Player ID (hash) / 玩家ID(哈希)
+     * @returns {string} Player name / 玩家名称
      */
     #getName(hash) {
         if (hash in this.#players) {
@@ -709,9 +709,9 @@ class PlayerName extends WebAPIConfigBase {
     }
 
     /**
-     * バナー用プレイヤー名設定
-     * @param {string} hash プレイヤーID(hash)
-     * @param {string} name プレイヤー名
+     * Set banner player name / 设置横幅玩家名称
+     * @param {string} hash Player ID (hash) / 玩家ID(哈希)
+     * @param {string} name Player name / 玩家名称
      */
     setName(hash, name) {
         if (!(hash in this.#players)) {
@@ -724,9 +724,9 @@ class PlayerName extends WebAPIConfigBase {
     }
 
     /**
-     * インゲーム名リストを設定
-     * @param {string} hash プレイヤーID(hash)
-     * @param {string[]} names ゲーム内プレイヤー名の配列
+     * Set in-game name list / 设置游戏内名称列表
+     * @param {string} hash Player ID (hash) / 玩家ID(哈希)
+     * @param {string[]} names Array of in-game player names / 游戏内玩家名称数组
      */
     setInGameNames(hash, names) {
         if (!(hash in this.#players)) {
@@ -747,7 +747,7 @@ class PlayerNameLobbyView extends WebAPIConfigBase {
         super('player-lobbyview-');
         this.getNode('container');
 
-        // チーム初期化
+        // Team initialization / 团队初始化
         for (let i = 0; i < 30; ++i) {
             const div = document.createElement('div');
             div.innerHTML = `
@@ -847,7 +847,7 @@ class PlayerNameLobbyView extends WebAPIConfigBase {
             div.querySelector('.player-ingame-name').innerText = ingamename;
             div.classList.add('exists');
 
-            // チームの枠に挿入
+            // Insert into team frame / 插入到团队框架
             const team = this.#teams[teamid];
             if (team && !team.contains(div)) {
                 const container = team.querySelector('.player-lobbyview-team-players');
@@ -870,7 +870,7 @@ class TeamName extends WebAPIConfigBase {
     #callback;
 
     /**
-     * コンストラクタ
+     * Constructor / 构造函数
      */
     constructor() {
         super('team-name-');
@@ -878,7 +878,7 @@ class TeamName extends WebAPIConfigBase {
         this.getNode('text');
         this.getNode('output');
 
-        // テキスト設定
+        // Text settings / 文本设置
         this.#setLineNumber();
 
         this.nodes.text.addEventListener('change', (ev) => {
@@ -887,7 +887,7 @@ class TeamName extends WebAPIConfigBase {
     }
 
     /**
-     * 行番号を設定する
+     * Set line numbers / 设置行号
      */
     #setLineNumber() {
         let dst = '';
@@ -899,8 +899,8 @@ class TeamName extends WebAPIConfigBase {
     }
 
     /**
-     * テキストエリアを更新する
-     * @param {*} text テキストエリアに設定する文字列
+     * Update text area / 更新文本区域
+     * @param {*} text String to set in text area / 要设置到文本区域的字符串
      */
     updateText(text) {
         const prev_text = this.nodes.text.value;
@@ -911,8 +911,8 @@ class TeamName extends WebAPIConfigBase {
     }
 
     /**
-     * テキストエリアからチーム名の配列を作る
-     * @returns {string[]} チーム名の入った配列
+     * Create team name array from text area / 从文本区域创建团队名称数组
+     * @returns {string[]} Array containing team names / 包含团队名称的数组
      */
     getLines() {
         const text = this.nodes.text.value;
@@ -920,8 +920,8 @@ class TeamName extends WebAPIConfigBase {
     }
 
     /**
-     * 1行毎に「TeamXX: 」をつけてoutput側のTextAreaに設定
-     * @param {string} text 元のテキスト
+     * Add "TeamXX: " to each line and set to output TextArea / 每行添加"TeamXX: "并设置到输出TextArea
+     * @param {string} text Original text / 原始文本
      */
     #updateOutput(src) {
         let dst = '';
@@ -942,7 +942,7 @@ class InGameSettings extends WebAPIConfigBase {
     #presets = {};
     #callback = undefined;
     /**
-     * コンストラクタ
+     * Constructor / 构造函数
      */
     constructor() {
         super('ingamesettings-');
@@ -959,10 +959,10 @@ class InGameSettings extends WebAPIConfigBase {
         this.getNode('token');
         this.getNode('presets');
 
-        // テキスト設定
+        // Text settings / 文本设置
         this.#setLineNumber();
 
-        // テキスト変更時にチェックを入れる
+        // Check when text changes / 文本变更时检查
         this.nodes.teamnames.addEventListener('change', (ev) => {
             this.#checkTeamSettings();
         });
@@ -970,7 +970,7 @@ class InGameSettings extends WebAPIConfigBase {
             this.#checkTeamSettings();
         });
 
-        // 値の変更時にチェックを入れる
+        // Check when value changes / 值变更时检查
         this.#base.querySelector('#ingamesettings-customsettings-playlistname').addEventListener('change', (ev) => {
             this.#checkCustomSettings();
         });
@@ -1000,7 +1000,7 @@ class InGameSettings extends WebAPIConfigBase {
             });
         }
 
-        // プリセットの保存
+        // Save preset / 保存预设
         this.#base.querySelector('#ingamesettings-preset-save').addEventListener('click', (ev) => {
             const name = this.#base.querySelector('#ingamesettings-preset-name').value.trim();
             if (name == '') return;
@@ -1015,7 +1015,7 @@ class InGameSettings extends WebAPIConfigBase {
     }
 
     /**
-     * 行番号を設定する
+     * Set line numbers / 设置行号
      */
     #setLineNumber() {
         let dst = '';
@@ -1051,8 +1051,8 @@ class InGameSettings extends WebAPIConfigBase {
     }
 
     /**
-     * テキストエリアからチーム名の配列を作る
-     * @returns {string[]} チーム名の入った配列
+     * Create team name array from text area / 从文本区域创建团队名称数组
+     * @returns {string[]} Array containing team names / 包含团队名称的数组
      */
     getTeamNames() {
         const text = this.nodes.teamnames.value;
@@ -1060,8 +1060,8 @@ class InGameSettings extends WebAPIConfigBase {
     }
 
     /**
-     * テキストエリアからスポーン地点の配列を作る
-     * @returns {number[]} スポーン地点の入った配列
+     * Create spawn point array from text area / 从文本区域创建出生点数组
+     * @returns {number[]} Array containing spawn points / 包含出生点的数组
      */
     getSpawnPoints() {
         const text = this.nodes.spawnpoints.value;
@@ -1086,7 +1086,7 @@ class InGameSettings extends WebAPIConfigBase {
     }
 
     /**
-     * インゲーム情報のチームテーブルを更新
+     * Update in-game info team table / 更新游戏内信息团队表格
      */
     #updateInGameTeamSettings() {
         while (this.nodes.teamsettings.firstChild) {
@@ -1497,7 +1497,7 @@ class RealtimeView {
         this.#callback = null;
         this.#playersnamenode = {};
 
-        // ゲーム情報の格納先作成
+        // Create storage for game info / 创建游戏信息存储
         this.#gameinfonode = document.getElementById('realtime-gameinfo');
         this.#gameinfonodes = {
             datacenter: document.createElement('div'),
@@ -1656,7 +1656,7 @@ class RealtimeView {
         
         /* set class */
         playernode.base.classList.add('realtime-player-base');
-        playernode.base.classList.add('realtime-player-state-alive'); // デフォルトは生存
+        playernode.base.classList.add('realtime-player-state-alive'); // Default is alive / 默认为存活
         playernode.left.classList.add('realtime-player-left');
         playernode.right.classList.add('realtime-player-right');
         playernode.name.classList.add('realtime-player-name');
@@ -1883,7 +1883,7 @@ class RealtimeView {
                 const node = this.#nodes[teamid].players[playerid].damage_dealt;
                 if ('damage_dealt' in player) {
                     if (player.damage_dealt > 0 && node.innerText != ('dealt:' + player.damage_dealt)) {
-                        // 背景色を変えるアニメーションをつける
+                        // Add animation to change background color / 添加改变背景色的动画
                         this.#nodes[teamid].players[playerid].base.classList.remove('realtime-player-changed-damage-dealt');
                         this.#nodes[teamid].players[playerid].base.offsetWidth;
                         this.#nodes[teamid].players[playerid].base.classList.add('realtime-player-changed-damage-dealt');
@@ -2001,8 +2001,8 @@ class ResultView {
     #single;
     #nodes;
     #infonodes;
-    #teams; // params保存用
-    #players; // params保存用
+    #teams; // For saving params / 用于保存params
+    #players; // For saving params / 用于保存params
     #current;
     #callback;
     #unknownidcallback;
@@ -2113,7 +2113,7 @@ class ResultView {
     }
 
     #drawTeamForAll(rank, total, team, placement = null) {
-        // 要素が足りてなかったら埋める
+        // Fill if elements are insufficient / 如果元素不足则填充
         if (rank >= this.#nodes.length) {
             for (let i = this.#nodes.length; i <= rank; ++i) {
                 const node = this.#generateTeamNodeForAll();
@@ -2126,7 +2126,7 @@ class ResultView {
             }
         }
 
-        // テキスト設定
+        // Text settings / 文本设置
         const node = this.#nodes[rank];
         const kills = team.kills.reduce((a, c) => a + c, 0);
         const kill_points = team.kill_points.reduce((a, c) => a + c, 0);
@@ -2148,7 +2148,7 @@ class ResultView {
 
         node.base.dataset.winner = team.winner;
 
-        // 更新用に登録
+        // Register for update / 注册以便更新
         this.#saveTeamNode(team.id, node.name);
     }
 
@@ -2273,13 +2273,13 @@ class ResultView {
             const teamid = parseInt(teamidstr, 10);
             const teamnode = this.#generateTeamNodeForSingle();
             
-            // テキスト設定
+            // Text settings / 文本设置
             teamnode.name.innerText = this.#getTeamName(teamid, data.name);
             teamnode.placement_value.innerText = data.placement;
             teamnode.kills_value.innerText = data.kills;
             teamnode.points_value.innerText = data.kills + (data.placement - 1 < 15 ? ResultView.points_table[data.placement - 1] : 0);
 
-            // ラベル
+            // Label / 标签
             const playerlabelnode = this.#generatePlayerLabelNodeForSingle();
             teamnode.base.appendChild(playerlabelnode.base);
 
@@ -2287,17 +2287,17 @@ class ResultView {
                 const playernode = this.#generatePlayerNodeForSingle();
                 teamnode.base.appendChild(playernode.base);
 
-                // テキスト設定
+                // Text settings / 文本设置
                 playernode.name.innerText = this.#getPlayerName(player.id, player.name);
                 playernode.character.innerText = player.character;
                 playernode.kills.innerText = player.kills;
                 playernode.assists.innerText = player.assists;
                 playernode.damage.innerText = player.damage_dealt;
 
-                // 更新用に登録
+                // Register for update / 注册以便更新
                 this.#savePlayerNode(player.id, playernode.name);
             }
-            // 更新用に登録
+            // Register for update / 注册以便更新
             this.#saveTeamNode(teamid, teamnode.name);
 
             this.#single.appendChild(teamnode.base);
@@ -2305,15 +2305,15 @@ class ResultView {
     }
 
     #drawGameInfo() {
-        // infonodesの数を調整
+        // Adjust number of infonodes / 调整infonodes数量
         if (this.#infonodes.length > this.#_results.length) {
-            // 削除
+            // Delete / 删除
             for (let i = this.#infonodes.length; i <= this.#_results.length; --i) {
-                this.#infonodes.pop(); // 最後の要素を削除
-                this.#info.removeChild(this.#info.lastChild()); // 最後の要素を削除
+                this.#infonodes.pop(); // Remove last element / 删除最后一个元素
+                this.#info.removeChild(this.#info.lastChild()); // Remove last element / 删除最后一个元素
             }
         } else if (this.#infonodes.length < this.#_results.length) {
-            // 追加
+            // Add / 添加
             for (let i = this.#infonodes.length; i < this.#_results.length; ++i) {
                 const node = this.#generateGameInfoNode(i);
                 this.#infonodes.push(node);
@@ -2321,11 +2321,11 @@ class ResultView {
             }
         }
         
-        // テキスト設定
+        // Text settings / 文本设置
         for (let i = 0; i < this.#_results.length; ++i) {
             const result = this.#_results[i];
             const node = this.#infonodes[i];
-            node.gamenumber.innerHTML = '<span class="en">Game</span><span class="ja">マッチ</span> ' + (i + 1);
+            node.gamenumber.innerHTML = '<span class="en">Game</span><span class="zh">比赛</span> ' + (i + 1);
             node.datacenter.innerText = 'datacenter: ' + result.datacenter;
             node.serverid.innerText = 'serverid: '+ result.serverid;
             node.playlistname.innerText = 'playlistname: ' + result.playlistname;
@@ -2339,10 +2339,10 @@ class ResultView {
     }
 
     #drawResults(target) {
-        // 計算用
+        // For calculation / 用于计算
         let data;
 
-        // 過去のゲームのポイントを加算
+        // Add points from past games / 添加过去比赛的积分
         if (target == 'all') {
             data = resultsToTeamResults(this.#_results);
         } else if (typeof target == 'number') {
@@ -2356,10 +2356,10 @@ class ResultView {
             return;
         }
 
-        // マッチポイント閾値を取得
+        // Get match point threshold / 获取赛点阈值
         const matchpoints = ('calcmethod' in this.#tournamentparams && 'matchpoints' in this.#tournamentparams.calcmethod && this.#tournamentparams.calcmethod.matchpoints > 0) ? this.#tournamentparams.calcmethod.matchpoints : 0;
 
-        // ポイントを計算して追加
+        // Calculate and add points / 计算并添加积分
         for (const [teamidstr, team] of Object.entries(data)) {
             const teamid = parseInt(teamidstr, 10);
             const advancepoint = getAdvancePoints(teamid, this.#tournamentparams);
@@ -2379,7 +2379,7 @@ class ResultView {
 
             if (target == 'all') {
                 team.total_points = advancepoint + team.points.reduce((a, c) => a + c, 0);
-                // マッチポイント到達の確認
+                // Check match point reached / 检查是否达到赛点
                 if (matchpoints > 0 && team.total_points >= matchpoints) {
                     team.matchpoints = true;
                 }
@@ -2388,7 +2388,7 @@ class ResultView {
             }
         }
 
-        // マッチポイントの勝者決定
+        // Determine match point winner / 确定赛点获胜者
         if (target == 'all' && matchpoints > 0) {
             for (const i of [...Array(this.#_results.length).keys()]) {
                 if (i == 0) continue;
@@ -2400,7 +2400,7 @@ class ResultView {
                         break;
                     }
                 }
-                // 勝者決定済
+                // Winner already determined / 获胜者已确定
                 if (Object.values(data).some(x => x.winner)) break;
             }
         }
@@ -2408,12 +2408,12 @@ class ResultView {
         // results -> table
         const p = setRankParameterToTeamResults(data);
 
-        // 表示
+        // Display / 显示
         for (let i = 0; i < p.length; ++i) {
             const teamid = p[i];
             const team = data[teamid];
             
-            // 描画
+            // Draw / 绘制
             if (target == 'all') {
                 this.#drawTeamForAll(i, p.length, team);
             } else {
@@ -2496,9 +2496,9 @@ class ResultView {
     }
 
     /**
-     * 表示用にチームparamsを保存・必要に応じて要素を更新する
-     * @param {number|string} id チームID(0～)
-     * @param {object} params チームparams
+     * Save team params for display and update elements as needed / 保存团队params用于显示,并根据需要更新元素
+     * @param {number|string} id Team ID (0~) / 团队ID(0~)
+     * @param {object} params Team params / 团队params
      */
     saveTeamParams(id, params) {
         if (!(id in this.#teams)) {
@@ -2537,7 +2537,7 @@ class ResultView {
     showSingleGameResult(gameid) {
         this.#current = gameid;
 
-        // 内容表示
+        // Display content / 显示内容
         this.clear();
         if (this.#_results != null) {
             this.#drawGameInfo();
@@ -2547,13 +2547,13 @@ class ResultView {
             this.#drawResult(gameid);
         }
 
-        // 表示切替
+        // Toggle display / 切换显示
         this.#all.classList.remove('hide');
         this.#single.classList.remove('hide');
     }
 
     /**
-     * リザルト部分を表示する
+     * Show result section / 显示结果部分
      */
     showBothResultView() {
         this.#all.classList.remove('hide');
@@ -2561,7 +2561,7 @@ class ResultView {
     }
 
     /**
-     * リザルト部分の表示を非表示にする
+     * Hide result section / 隐藏结果部分
      */
     hideBothResultView() {
         this.#all.classList.add('hide');
@@ -2571,7 +2571,7 @@ class ResultView {
     showAllResults() {
         this.#current = 'all';
 
-        // 内容表示
+        // Display content / 显示内容
         this.clear();
         if (this.#_results != null) {
             this.#drawGameInfo();
@@ -2579,14 +2579,14 @@ class ResultView {
             this.#drawResults('all');
         }
 
-        // 表示切替
+        // Toggle display / 切换显示
         this.#all.classList.remove('hide');
         this.#hideSingleGameResult();
     }
 
     /**
-     * 表示対象のリザルトを設定する
-     * @param {object[]} results 表示するリザルト
+     * Set results to display / 设置要显示的结果
+     * @param {object[]} results Results to display / 要显示的结果
      */
     setResults(results) {
         this.#_results = results;
@@ -2598,7 +2598,7 @@ class ResultView {
     }
 
     /**
-     * 再度計算する
+     * Recalculate / 重新计算
      */
     recalcAll() {
         this.#drawResults('all');
@@ -2610,8 +2610,8 @@ class ResultView {
     }
 
     /**
-     * リザルト表示用にゲームオブジェクトを設定する
-     * @param {object} game webapiのゲームオブジェクト
+     * Set game object for result display / 设置用于结果显示的游戏对象
+     * @param {object} game WebAPI game object / WebAPI游戏对象
      */
     setGame(game) {
         console.log(game);
@@ -2619,8 +2619,8 @@ class ResultView {
     }
 
     /**
-     * ポイント計算用にトーナメントのparamsをセットする
-     * @param {object} params トーナメントparams
+     * Set tournament params for point calculation / 设置用于积分计算的锦标赛params
+     * @param {object} params Tournament params / 锦标赛params
      */
     setTournamentParams(params) {
         this.#tournamentparams = params;
@@ -2628,16 +2628,16 @@ class ResultView {
     }
 
     /**
-     * ゲームIDが選択された場合に呼び出されるコールバック関数を設定する
-     * @param {function} func コールバック関数
+     * Set callback function called when game ID is selected / 设置选择游戏ID时调用的回调函数
+     * @param {function} func Callback function / 回调函数
      */
     setGameClickCallback(func) {
         this.#callback = func;
     }
 
     /**
-     * 不明なプレイヤーID(hash)が存在した場合に呼ばれるコールバック関数を設定する
-     * @param {function} func コールバック関数
+     * Set callback function called when unknown player ID (hash) exists / 设置存在未知玩家ID(哈希)时调用的回调函数
+     * @param {function} func Callback function / 回调函数
      */
     setUnknownPlayerHashCallback(func) {
         this.#unknownidcallback = func;
@@ -2676,7 +2676,7 @@ class ResultFixView extends WebAPIConfigBase {
             this.#updateKills();
         });
         this.nodes["from-stats-submit-button"].addEventListener("click", (ev) => {
-            // 修正送信
+            // Send correction / 发送修正
             if (this.#fixedresult != null && typeof(this.#callback) == 'function') {
                 this.#callback(this.#gameid, this.#fixedresult);
             }
@@ -2689,9 +2689,9 @@ class ResultFixView extends WebAPIConfigBase {
     }
 
     /**
-     * リザルトのコピーを保持する
-     * @param {number} gameid ゲームID(0～)
-     * @param {object} result リザルト
+     * Hold copy of result / 保存结果副本
+     * @param {number} gameid Game ID (0~) / 游戏ID(0~)
+     * @param {object} result Result / 结果
      */
     setResult(gameid, result) {
         this.#gameid = gameid;
@@ -2700,12 +2700,12 @@ class ResultFixView extends WebAPIConfigBase {
         this.checkResultFromStats();
     }
     /**
-     * リザルトのコピーを保持する
-     * @param {string} statscode statsコード
-     * @param {object} json 取得したjson
+     * Hold copy of result / 保存结果副本
+     * @param {string} statscode Stats code / 统计代码
+     * @param {object} json Retrieved json / 获取的json
      */
     setStatsJson(statscode, json) {
-        /* TODO: matchesの中身から使えるもののみ整形する */
+        /* TODO: Format only usable items from matches content / TODO: 仅从matches内容格式化可用项 */
         const matches = [];
         if ('matches' in json) {
             for (const m of json.matches) {
@@ -2733,7 +2733,7 @@ class ResultFixView extends WebAPIConfigBase {
                     }
     
                     if ('teamNum' in p) {
-                        // チームのパラメータ設定
+                        // Team parameter settings / 团队参数设置
                         const teamid = p.teamNum - 2;
                         if (!(teamid in ts)) ts[teamid] = {id: teamid, players:[]};
                         const team = ts[teamid];
@@ -2752,7 +2752,7 @@ class ResultFixView extends WebAPIConfigBase {
                             team.kills += p.kills;
                         }
     
-                        // 個人のパラメータ設定
+                        // Individual parameter settings / 个人参数设置
                         const player = {};
                         team.players.push(player);
                         if ('nidHash' in p) {
@@ -2800,7 +2800,7 @@ class ResultFixView extends WebAPIConfigBase {
                     }
                 }
                 if (!uncomplete) {
-                    // 1位のチームがいるか確認する
+                    // Check if there is a team in 1st place / 检查是否有第1名的团队
                     let has_1st = false;
                     for (const [key, team] of Object.entries(result.teams)) {
                         if (team.placement == 1) {
@@ -2819,10 +2819,10 @@ class ResultFixView extends WebAPIConfigBase {
     }
 
     /**
-     * 現在保存されているstatsから、リザルト修正の必要性を確認する
+     * Check need for result correction from currently saved stats / 从当前保存的统计数据检查是否需要修正结果
      */
     checkResultFromStats() {
-        // 保持しているstats概要を表示
+        // Display held stats summary / 显示保存的统计摘要
         this.nodes["from-stats-code-lists"].innerText = "";
         for (const key of Object.keys(this.#statscodes)) {
             const data = this.#statscodes[key];
@@ -2830,7 +2830,7 @@ class ResultFixView extends WebAPIConfigBase {
             const div = document.createElement('div');
             div.innerText = `${key}[${date}](${data.matches.length}matches)`;
             for (const m of data.matches.sort((a, b) => a.start - b.start)) {
-                // jsonのリンクを作成
+                // Create json link / 创建json链接
                 const a = document.createElement('a');
                 a.textContent = (new Date(m.start)).toLocaleString();
                 const type = 'application/json';
@@ -2841,19 +2841,19 @@ class ResultFixView extends WebAPIConfigBase {
             this.nodes["from-stats-code-lists"].appendChild(div);
         }
 
-        // 既に適用済みか確認する
+        // Check if already applied / 检查是否已应用
         let fixed = false;
         if (typeof(this.#gameid) == "number" && typeof(this.#result) == "object") {
             if ('matchid' in this.#result) {
-                // 適用済み
+                // Already applied / 已应用
                 fixed = true;
             } else {
-                // 未適用
+                // Not applied / 未应用
                 fixed = false;
             }
         }
 
-        // 適用可能なデータがあるか確認
+        // Check if there is applicable data / 检查是否有可应用的数据
         const diff = [];
         this.#fixedresult = null;
         for (const key of Object.keys(this.#statscodes)) {
@@ -2907,21 +2907,21 @@ class ResultFixView extends WebAPIConfigBase {
             }
         }
 
-        // 適用済みメッセージの表示
+        // Display already applied message / 显示已应用消息
         if (fixed) {
             document.getElementById('rffs-already-fixed').classList.remove('hide');
         } else {
             document.getElementById('rffs-already-fixed').classList.add('hide');
         }
 
-        // 適用可能データなしメッセージの表示
+        // Display no applicable data message / 显示无可应用数据消息
         if (this.#fixedresult == null) {
             document.getElementById('rffs-data-not-found').classList.remove('hide');
         } else {
             document.getElementById('rffs-data-not-found').classList.add('hide');
         }
 
-        // 差分を表示する
+        // Display differences / 显示差异
         this.nodes["from-stats-code-diff-lists"].innerHTML = "";
         if (this.#fixedresult) {
             for (const txt of diff) {
@@ -2934,7 +2934,7 @@ class ResultFixView extends WebAPIConfigBase {
             }
         }
 
-        // 存在する場合は修正される差異を表示(修正ボタン表示)
+        // If exists, display differences to be corrected (show correction button) / 如果存在,显示要修正的差异(显示修正按钮)
         if (this.#fixedresult && (!fixed || diff.length > 0)) {
             document.getElementById('result-fix-from-stats-submit-area').classList.remove('hide');
         } else {
@@ -2943,10 +2943,10 @@ class ResultFixView extends WebAPIConfigBase {
     }
 
     /**
-     * 2つのリザルトのプレイヤーに差異がないか確認する(IDのみ確認)
-     * @param {object} a 比較対象のresult
-     * @param {object} b 比較対象のresult
-     * @returns {boolean} 差異がない場合はtrue
+     * Check if two results have no player differences (ID only) / 检查两个结果的玩家是否无差异(仅ID)
+     * @param {object} a Result to compare / 要比较的result
+     * @param {object} b Result to compare / 要比较的result
+     * @returns {boolean} True if no differences / 无差异时返回true
      */
     #comparePlayers(a, b) {
         for (const [a_k, a_t] of Object.entries(a.teams)) {
@@ -2967,15 +2967,15 @@ class ResultFixView extends WebAPIConfigBase {
     }
 
     /**
-     * 順位修正用の画面を描画する
+     * Draw placement correction screen / 绘制排名修正画面
      */
     drawPlacement() {
-        // 全要素削除
+        // Remove all elements / 删除所有元素
         const nodes = this.nodes.placementnodes;
         while (nodes.children.length > 0) {
             nodes.removeChild(nodes.firstChild);
         }
-        // チームIDを抜き出す
+        // Extract team IDs / 提取团队ID
         const p = Object.keys(this.#result.teams);
         p.sort((a, b) => {
             const pa = this.#result.teams[a].placement;
@@ -2985,7 +2985,7 @@ class ResultFixView extends WebAPIConfigBase {
             return 0;
         });
 
-        // 表示
+        // Display / 显示
         for (let i = 0; i < p.length; ++i) {
             const teamid = parseInt(p[i], 10);
             const team = this.#result.teams[teamid];
@@ -2994,7 +2994,7 @@ class ResultFixView extends WebAPIConfigBase {
                     <div class="rf-placement">
                         <div class="rf-placement-label">
                             <span class="en">rank</span>
-                            <span class="ja">順位</span>
+                            <span class="zh">排名</span>
                         </div>
                         <div class="rf-placement-value">
                             ${i + 1}
@@ -3003,7 +3003,7 @@ class ResultFixView extends WebAPIConfigBase {
                     <div class="rf-prev-placement">
                         <div class="rf-prev-placement-label">
                             <span class="en">before</span>
-                            <span class="ja">修正前の順位</span>
+                            <span class="zh">修正前排名</span>
                         </div>
                         <div class="rf-prev-placement-value">
                             ${team.placement}
@@ -3012,7 +3012,7 @@ class ResultFixView extends WebAPIConfigBase {
                     <div class="rf-teamid">
                         <div class="rf-teamid-label">
                             <span class="en">team no.</span>
-                            <span class="ja">チーム番号</span>
+                            <span class="zh">队伍编号</span>
                         </div>
                         <div class="rf-teamid-value">
                             ${teamid + 1}
@@ -3021,7 +3021,7 @@ class ResultFixView extends WebAPIConfigBase {
                     <div class="rf-teamname">
                         <div class="rf-teamname-label">
                             <span class="en">team name</span>
-                            <span class="ja">チーム名</span>
+                            <span class="zh">队伍名称</span>
                         </div>
                         <div class="rf-teamname-value">
                             ${team.name}
@@ -3051,7 +3051,7 @@ class ResultFixView extends WebAPIConfigBase {
                     ev.preventDefault();
                     ev.dataTransfer.dropEffect = "move";
                     if (teamid != this.#dragging_teamid) {
-                        // 入れ替える
+                        // Swap / 交换
                         const node = getNodeFromTeamId(this.#dragging_teamid);
                         const children = [].slice.call(nodes.children);
                         const dragging_index = children.indexOf(node);
@@ -3062,7 +3062,7 @@ class ResultFixView extends WebAPIConfigBase {
                             nodes.insertBefore(node, nodes.children[target_index + 1]);
                         }
 
-                        // 入替後の順位確定
+                        // Finalize placement after swap / 交换后确定排名
                         for (let i = 0; i < nodes.children.length; ++i) {
                             const node = nodes.children[i];
                             node.children[0].children[1].innerText = i + 1;
@@ -3099,10 +3099,10 @@ class ResultFixView extends WebAPIConfigBase {
     }
 
     /**
-     * キル数修正用の画面を表示する
+     * Display kill count correction screen / 显示击杀数修正画面
      */
     drawKills() {
-        // 全要素削除
+        // Remove all elements / 删除所有元素
         const nodes = this.nodes.killsnodes;
         while (nodes.children.length > 0) {
             nodes.removeChild(nodes.firstChild);
@@ -3158,7 +3158,7 @@ class ResultFixView extends WebAPIConfigBase {
                 );
                 tn.children[1].appendChild(div);
                 const pn = tn.children[1].lastChild;
-                // 増加・減少操作
+                // Increase/decrease operation / 增加/减少操作
                 pn.children[2].children[0].addEventListener('click', (ev) => {
                     // +
                     let kills = parseInt(pn.children[1].innerText, 10);
@@ -3190,7 +3190,7 @@ class ResultFixView extends WebAPIConfigBase {
     #updatePlacement() {
         const nodes = this.nodes.placementnodes;
 
-        // 修正点の抜き出し
+        // Extract corrections / 提取修正点
         const updates = [];
         for (const node of nodes.children) {
             const curr_rank = parseInt(node.children[0].children[1].innerText, 10);
@@ -3203,15 +3203,15 @@ class ResultFixView extends WebAPIConfigBase {
 
         if (updates.length == 0) return;
 
-        // コピー
+        // Copy / 复制
         const result = JSON.parse(JSON.stringify(this.#result));
 
-        // 修正
+        // Correction / 修正
         for (const update of updates) {
             result.teams[update.id].placement = update.placement;
         }
 
-        // 修正送信
+        // Send correction / 发送修正
         if (typeof(this.#callback) == 'function') {
             this.#callback(this.#gameid, result);
         }
@@ -3219,7 +3219,7 @@ class ResultFixView extends WebAPIConfigBase {
 
     #updateKills() {
         const nodes = this.nodes.killsnodes;
-        // 修正点の抜き出し
+        // Extract corrections / 提取修正点
         const updates = {};
         for (const node of nodes.children) {
             const curr_team_kills = parseInt(node.children[0].children[2].innerText, 10);
@@ -3240,10 +3240,10 @@ class ResultFixView extends WebAPIConfigBase {
         }
         if (Object.keys(updates).length == 0) return;
 
-        // コピー
+        // Copy / 复制
         const result = JSON.parse(JSON.stringify(this.#result));
 
-        // 修正
+        // Correction / 修正
         for (const [teamid, data] of Object.entries(updates)) {
             const team = result.teams[teamid];
             team.kills = data.kills;
@@ -3254,7 +3254,7 @@ class ResultFixView extends WebAPIConfigBase {
             }
         }
 
-        // 修正送信
+        // Send correction / 发送修正
         if (typeof(this.#callback) == 'function') {
             this.#callback(this.#gameid, result);
         }
@@ -3289,8 +3289,8 @@ class ResultFixView extends WebAPIConfigBase {
     }
 
     /**
-     * リザルトが修正が要求された際に呼び出されるコールバック関数を設定する
-     * @param {function} func コールバック関数
+     * Set callback function called when result correction is requested / 设置请求结果修正时调用的回调函数
+     * @param {function} func Callback function / 回调函数
      */
     setCallback(func) {
         if (typeof(func) == 'function' && func.length == 2) {
@@ -3312,9 +3312,9 @@ export class WebAPIConfig {
     #tournament_ids;
     #tournament_params;
     #tournamentcalculationmethod;
-    /** @type {Object.<string, object>} プレーヤーparamsの格納先 */
+    /** @type {Object.<string, object>} Storage for player params / 玩家params存储 */
     #playerparams;
-    /** @type {Object.<string, object>} チームparamsの格納先 */
+    /** @type {Object.<string, object>} Storage for team params / 团队params存储 */
     #teamparams;
     #realtimeview;
     #observerconfig;
@@ -3366,14 +3366,14 @@ export class WebAPIConfig {
 
         this.#legendban.setWebAPI(this.#webapi);
 
-        // 接続系
+        // Connection related / 连接相关
         this.#webapi.addEventListener('open', (ev) => {
             this.#_game = ev.detail.game;
             this.#realtimeview.setGame(ev.detail.game);
             this.#resultview.setGame(ev.detail.game);
             this.#webapiconnectionstatus.setStatus('open');
 
-            /* 初回情報取得 */
+            /* Initial info retrieval / 初次信息获取 */
             this.#webapi.getPlayers();
             this.#webapi.getCurrentTournament();
             this.#webapi.getTournamentIDs();
@@ -3399,10 +3399,10 @@ export class WebAPIConfig {
             this.#tryReconnect();
         });
 
-        /* 設定変更イベント */
+        /* Settings change event / 设置变更事件 */
         this.#webapi.addEventListener('getcurrenttournament', (ev) => {
             if (ev.detail.id != '' && this.#tournament_id != ev.detail.id) {
-                // 現在のトーナメントIDが変わった場合
+                // If current tournament ID changed / 如果当前锦标赛ID改变
                 this.#getTeamNames();
             }
             this.#tournament_id = ev.detail.id;
@@ -3435,8 +3435,8 @@ export class WebAPIConfig {
         this.#webapi.addEventListener('getplayers', (ev) => {
             for (const [hash, params] of Object.entries(ev.detail.players)) {
                 this.#playerparams[hash] = params;
-                this.#realtimeview.redrawPlayerName(hash, params); // RealtimeViewの再描画
-                this.#resultview.savePlayerParams(hash, params); // ResultView用にも保存
+                this.#realtimeview.redrawPlayerName(hash, params); // Redraw RealtimeView / 重绘RealtimeView
+                this.#resultview.savePlayerParams(hash, params); // Also save for ResultView / 也为ResultView保存
                 if ('name' in params) {
                     this.#playername.setName(hash, params.name);
                     this.#playernamelobbyview.setPlayerName(hash, params.name);
@@ -3504,7 +3504,7 @@ export class WebAPIConfig {
             this.#playernamelobbyview.end();
         });
 
-        /* observer用 */
+        /* For observer / 用于观察者 */
         this.#webapi.addEventListener('getobserver', (ev) => {
             this.#observerconfig.setCurrentObserver(ev.detail.hash); 
         });
@@ -3514,7 +3514,7 @@ export class WebAPIConfig {
             }
         })
 
-        /* realtime view 用 関連付け */
+        /* For realtime view association / 用于实时视图关联 */
         this.#webapi.addEventListener('matchsetup', (ev) => {
             this.#realtimeview.drawGameInfo();
         })
@@ -3602,7 +3602,7 @@ export class WebAPIConfig {
         this.#webapi.addEventListener('playeritem', (ev) => {
         });
 
-        /* result用 */
+        /* For result / 用于结果 */
         this.#webapi.addEventListener('gettournamentresults', (ev) => {
             this.#_results = ev.detail.results;
             this.#procCurrentHash(location.hash);
@@ -3623,7 +3623,7 @@ export class WebAPIConfig {
             const hash = ev.detail.hash;
             const params = ev.detail.params;
             this.#resultview.savePlayerParams(hash, params);
-            this.#realtimeview.redrawPlayerName(hash, params); // RealtimeViewの再描画
+            this.#realtimeview.redrawPlayerName(hash, params); // Redraw RealtimeView / 重绘RealtimeView
             if ('name' in params) {
                 this.#playername.setName(hash, params.name);
                 this.#playernamelobbyview.setPlayerName(hash, params.name);
@@ -3636,7 +3636,7 @@ export class WebAPIConfig {
                 const hash = ev.detail.hash;
                 const params = ev.detail.params;
                 this.#resultview.savePlayerParams(hash, params);
-                this.#realtimeview.redrawPlayerName(hash, params); // RealtimeViewの再描画
+                this.#realtimeview.redrawPlayerName(hash, params); // Redraw RealtimeView / 重绘RealtimeView
                 if ('name' in params) {
                     this.#playername.setName(hash, params.name);
                     this.#playernamelobbyview.setPlayerName(hash, params.name);
@@ -3645,7 +3645,7 @@ export class WebAPIConfig {
             }
         });
 
-        /* Overlay用 */
+        /* For Overlay / 用于叠加层 */
         this.#webapi.addEventListener('gettournamentparams', (ev) => {
             this.#tournament_params = ev.detail.params;
             this.#setOverlayStatusFromParams(ev.detail.params);
@@ -3664,12 +3664,12 @@ export class WebAPIConfig {
             }
         });
 
-        /** LiveAPI側の接続状況を表示 */
+        /** Display LiveAPI connection status / 显示LiveAPI连接状态 */
         this.#webapi.addEventListener('liveapisocketstats', (ev) => {
             this.#liveapiconnectionstatus.setStatus(ev.detail.conn, ev.detail.recv, ev.detail.send);
         });
 
-        /** LiveAPIの設定関係 */
+        /** LiveAPI settings related / LiveAPI设置相关 */
         this.#webapi.addEventListener('getliveapiconfig', (ev) => {
             this.#liveapiconfig.setConfig(ev.detail.config);
         });
@@ -3680,14 +3680,14 @@ export class WebAPIConfig {
             }
         });
 
-        /* Post-APIからの取得結果 */
+        /* Results from Post-API / 从Post-API获取的结果 */
         this.#webapi.addEventListener('getstatsfromcode', (ev) => {
             if (ev.detail.statuscode == 200) {
                 this.#resultfixview.setStatsJson(ev.detail.statscode, ev.detail.stats);
             }
         });
 
-        /* マッチ設定の取得 */
+        /* Get match settings / 获取比赛设置 */
         this.#webapi.addEventListener('custommatchsettings', (ev) => {
             document.getElementById('test-getsettings-playlist').innerText = ev.detail.playlistname;
             document.getElementById('test-getsettings-aimassist').innerText = ev.detail.aimassist;
@@ -4128,8 +4128,8 @@ export class WebAPIConfig {
     }
 
     /**
-     * URLのハッシュからページ表示・非表示する
-     * @param {string} hash URLのハッシュ
+     * Show/hide page from URL hash / 从URL哈希显示/隐藏页面
+     * @param {string} hash URL hash / URL哈希
      */
     #procCurrentHash(hash) {
         const fragment = this.#getFragment(hash);
@@ -4159,7 +4159,7 @@ export class WebAPIConfig {
             }
         }
 
-        /* 選択表示 */
+        /* Selection display / 选择显示 */
         for (const node of document.querySelectorAll('.sidebar-selected')) {
             node.classList.remove('sidebar-selected');
         }
@@ -4167,7 +4167,7 @@ export class WebAPIConfig {
             node.classList.add('sidebar-selected');
         }
 
-        /* ページ遷移起因でのデータ取得 */
+        /* Data retrieval from page navigation / 页面导航引起的数据获取 */
         if (fragment == 'observer-set') {
             this.#webapi.getObserver();
             this.#webapi.getObservers();
@@ -4175,8 +4175,8 @@ export class WebAPIConfig {
     }
 
     /**
-     * トーナメント一覧を表示する
-     * @param {Object.<string, string>[]} ids トーナメントのIDと名前の配列
+     * Display tournament list / 显示锦标赛列表
+     * @param {Object.<string, string>[]} ids Array of tournament IDs and names / 锦标赛ID和名称的数组
      */
     #procTournamentIDs(ids) {
         const tbody = document.getElementById('tournamentids');
@@ -4206,7 +4206,7 @@ export class WebAPIConfig {
             }
         }
 
-        // 名前でソートする
+        // Sort by name / 按名称排序
         const children = [...tbody.children].sort((a, b) => {
             const a_name = a.children[0].innerText;
             const b_name = b.children[0].innerText;
@@ -4220,8 +4220,8 @@ export class WebAPIConfig {
     }
 
     /**
-     * テキストエリアの内容からゲーム内のチーム名を設定する
-     * @returns {Promise} 設定を行った結果を返す
+     * Set in-game team names from text area content / 从文本区域内容设置游戏内团队名称
+     * @returns {Promise} Returns result of settings / 返回设置结果
      */
     #setInGameTeamNames(ingamesettings = false) {
         const lines = ingamesettings ? this.#ingamesettings.getTeamNames() : this.#teamname.getLines();
@@ -4253,14 +4253,14 @@ export class WebAPIConfig {
         timerid = setTimeout(() => {
             this.#webapi.removeEventListener('lobbyenumend', enumend);
             console.warn('setInGameTeamNames() timeout.');
-        }, 2000); // 2sでタイムアウト
+        }, 2000); // 2s timeout / 2秒超时
 
         this.#webapi.sendGetLobbyPlayers();
     }
 
     /**
-     * テキストエリアの内容からゲーム内のチーム名を設定する()
-     * @returns {Promise} 設定を行った結果を返す
+     * Set in-game team names from text area content / 从文本区域内容设置游戏内团队名称
+     * @returns {Promise} Returns result of settings / 返回设置结果
      */
     #setInGameSpawnPoints() {
         const spawnpoints = this.#ingamesettings.getSpawnPoints();
@@ -4292,7 +4292,7 @@ export class WebAPIConfig {
         timerid = setTimeout(() => {
             this.#webapi.removeEventListener('lobbyenumend', enumend);
             console.warn('setInGameSpawnPoints() timeout.');
-        }, 2000); // 2sでタイムアウト
+        }, 2000); // 2s timeout / 2秒超时
 
         this.#webapi.sendGetLobbyPlayers();
     }
@@ -4305,8 +4305,8 @@ export class WebAPIConfig {
     }
 
     /**
-     * テキストエリアの内容からチーム名をparamsに設定する
-     * @returns {Promise} 設定を行ったparamsの配列を返す
+     * Set team names to params from text area content / 从文本区域内容设置团队名称到params
+     * @returns {Promise} Returns array of set params / 返回设置的params数组
      */
     #setTeamNames() {
         const lines = this.#teamname.getLines();
@@ -4336,9 +4336,9 @@ export class WebAPIConfig {
     }
 
     /**
-     * プレイヤーのハッシュとインゲームの名前を処理
-     * @param {string} hash プレイヤーID(hash)
-     * @param {string} ingamename プレイヤー名
+     * Process player hash and in-game name / 处理玩家哈希和游戏内名称
+     * @param {string} hash Player ID (hash) / 玩家ID(哈希)
+     * @param {string} ingamename Player name / 玩家名称
      */
     #procPlayerInGameName(hash, ingamename) {
         let updated = false;
@@ -4354,14 +4354,14 @@ export class WebAPIConfig {
             updated = true;
         }
         if (updated && this.#getallplayers) {
-            // プレイヤーのパラメータを更新
+            // Update player parameters / 更新玩家参数
             this.#webapi.setPlayerParams(hash, params);
         }
     }
 
     /**
-     * リザルト配列からプレーヤーのハッシュとインゲームの名前を処理する
-     * @param {object[]} results リザルト配列
+     * Process player hash and in-game name from result array / 从结果数组处理玩家哈希和游戏内名称
+     * @param {object[]} results Result array / 结果数组
      */
     #procPlayerInGameNameFromResults(results) {
         for (const result of results) {
@@ -4374,8 +4374,8 @@ export class WebAPIConfig {
     }
 
     /**
-     * オーバーレイの表示/非表示パラメータをトーナメントparamsに設定
-     * @param {string} id オーバーレイの名前
+     * Set overlay show/hide parameter to tournament params / 设置叠加层显示/隐藏参数到锦标赛params
+     * @param {string} id Overlay name / 叠加层名称
      */
     #updateOverlayStatus(id) {
         const params = this.#tournament_params;
@@ -4386,8 +4386,8 @@ export class WebAPIConfig {
     }
 
     /**
-     * トーナメントのparamsに含まれるパラメータからオーバーレイの強制非表示チェック状態を設定する
-     * @param {object} params トーナメントparams
+     * Set overlay force hide checkbox state from tournament params / 从锦标赛params设置叠加层强制隐藏复选框状态
+     * @param {object} params Tournament params / 锦标赛params
      */
     #setOverlayStatusFromParams(params) {
         if (!('forcehide' in params)) params.forcehide = {};
@@ -4410,10 +4410,10 @@ export class WebAPIConfig {
     }
 
     /**
-     * チーム用のparamsを取得し、nameキーに名前を設定して保存する
-     * @param {number} teamid チームID(0～)
-     * @param {string} name チーム名
-     * @returns チーム用params
+     * Get team params, set name key and save / 获取团队params,设置名称键并保存
+     * @param {number} teamid Team ID (0~) / 团队ID(0~)
+     * @param {string} name Team name / 团队名称
+     * @returns Team params / 团队params
      */
     #setTeamName(teamid, name) {
         const params = this.#teamparams[teamid];
@@ -4422,9 +4422,9 @@ export class WebAPIConfig {
     }
 
     /**
-     * チーム用のparamsを取得し、nameキーを削除して保存する
-     * @param {number} teamid チームID(0～)
-     * @returns {Promise} チーム用params
+     * Get team params, delete name key and save / 获取团队params,删除名称键并保存
+     * @param {number} teamid Team ID (0~) / 团队ID(0~)
+     * @returns {Promise} Team params / 团队params
      */
     #removeTeamName(teamid) {
         const params = this.#teamparams[teamid];
@@ -4433,8 +4433,8 @@ export class WebAPIConfig {
     }
 
     /**
-     * 0～29のチームparamsを取得する
-     * @returns {object[]} チームのparamsが入った配列
+     * Get team params for 0~29 / 获取0~29的团队params
+     * @returns {object[]} Array containing team params / 包含团队params的数组
      */
     #getAllTeamParams() {
         return new Promise((resolve, reject) => {
@@ -4451,14 +4451,14 @@ export class WebAPIConfig {
     }
 
     /**
-     * チーム用のパラメータを取得してテキストエリアに反映する
+     * Get team parameters and reflect to text area / 获取团队参数并反映到文本区域
      */
     #getTeamNames() {
         this.#getAllTeamParams().then((arr) => { this.#updateTeamNameTextArea(); }, () => {});
     }
 
     /**
-     * チームのparamsからチーム名を取り出しtextareaに設定する
+     * Extract team name from team params and set to textarea / 从团队params提取团队名称并设置到textarea
      */
     #updateTeamNameTextArea() {
         let text = '';
@@ -4472,8 +4472,8 @@ export class WebAPIConfig {
     }
 
     /**
-     * リザルトを表示する
-     * @param {string} submenu 'all'もしくは数字の文字列(1～)
+     * Display results / 显示结果
+     * @param {string} submenu 'all' or numeric string (1~) / 'all'或数字字符串(1~)
      */
     #showResult(submenu) {
         if (submenu == 'all') {
@@ -4492,9 +4492,9 @@ export class WebAPIConfig {
     }
 
     /**
-     * 現在のトーナメントの選択状況を設定する
-     * @param {string} id トーナメントのID
-     * @param {string} name トーナメントの名前
+     * Set current tournament selection status / 设置当前锦标赛选择状态
+     * @param {string} id Tournament ID / 锦标赛ID
+     * @param {string} name Tournament name / 锦标赛名称
      */
     #setCurrentTournament(id, name) {
         document.getElementById('current_tournament_id').innerText = id;
@@ -4509,8 +4509,8 @@ export class WebAPIConfig {
     }
 
     /**
-     * リザルト数から左メニューのリザルトリンクを作成する
-     * @param {number} count リザルト数(0～)
+     * Create result links in left menu from result count / 从结果数量创建左侧菜单的结果链接
+     * @param {number} count Result count (0~) / 结果数量(0~)
      */
     #updateResultMenuFromResultsCount(count) {
         const ul = document.getElementById('ulresult');
@@ -4520,11 +4520,11 @@ export class WebAPIConfig {
                 const li = document.createElement('li');
                 const a = document.createElement('a');
                 a.href = '#result-' + i;
-                a.innerHTML = '<span class="en">Game</span><span class="ja">マッチ</span> ' + (i + 1);
+                a.innerHTML = '<span class="en">Game</span><span class="zh">比赛</span> ' + (i + 1);
                 li.appendChild(a);
                 ul.appendChild(li);
 
-                // クラス設定
+                // Class settings / 类设置
                 if (this.#getFragment(location.hash) == ('result-' + i)) {
                     a.classList.add('sidebar-selected');
                 }

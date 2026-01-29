@@ -1,9 +1,11 @@
 # teambanner-with-nopoints
 
-チームバナーの順位・ポイントを非表示にし、チーム番号を表示するサンプル。
+Sample to hide ranking/points on team banner and display team number instead.
 
-![image](https://github.com/user-attachments/assets/350e7d9d-bdb1-424d-99c0-6c4f1620dad1)
+隐藏队伍横幅上的排名/积分并显示队伍编号的示例。
 
-## 使い方
+![image](https://github.com/user-attachments/assets/00000000-0000-0000-0000-000000000000)
 
-1. `custom-overlays`内のファイルを`htdocs/custom-overlays`フォルダにコピーする。
+## Usage / 使用方法
+
+1. Copy files from `custom-overlays` to `htdocs/custom-overlays` folder. / 将 `custom-overlays` 中的文件复制到 `htdocs/custom-overlays` 文件夹。

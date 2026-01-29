@@ -1,0 +1,79 @@
+:host {
+    /* 完全透明背景，仅渲染文字 */
+    background: #00000000;
+    color: white;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+    width: 1920px;
+    height: 1080px;
+}
+
+/* 队伍数据区域 */
+.teams {
+    position: absolute;
+    left: 85px;
+    top: 250px;
+    width: 1740px;
+    height: 700px;
+    display: grid;
+    grid-auto-flow: column;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: repeat(10, auto);
+    column-gap: 20px;
+}
+
+/* 单个队伍行 */
+.team {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 70px;
+    font-size: 24px;
+    color: white;
+}
+
+/* 未显示排名的队伍隐藏 */
+.team:not([data-team-single-last-placement]) {
+    opacity: 0;
+    visibility: hidden;
+}
+
+/* 排名列 */
+.team-rank {
+    width: 130px;
+    text-align: center;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+/* 队伍名称列 */
+.team-name {
+    flex: 1;
+    text-align: left;
+    padding-left: 30px;
+    font-size: 24px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* 击杀分列 */
+.team-pp {
+    width: 110px;
+    text-align: center;
+    font-size: 24px;
+}
+
+/* 排名分列 */
+.team-kp {
+    width: 110px;
+    text-align: center;
+    font-size: 24px;
+}
+
+/* 总积分列 */
+.team-total {
+    width: 110px;
+    text-align: center;
+    font-size: 26px;
+    font-weight: bold;
+}

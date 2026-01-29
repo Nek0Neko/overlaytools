@@ -1,4 +1,5 @@
 import { TemplateOverlay, TemplateOverlayHandler } from "./template-overlay.js";
+import { sortTeamsByRank } from "./overlay-common.js";
 
 class LeaderBoard extends TemplateOverlay {
     static FADEIN_CLASS = 'fadein';
@@ -11,6 +12,7 @@ class LeaderBoard extends TemplateOverlay {
     #showinterval;
     #alivesonly;
     #delaysort;
+    #teamsContainer;  // Cached DOM reference
 
     constructor(shownum = 4) {
         super({ types: ["view-live"] });
@@ -21,11 +23,20 @@ class LeaderBoard extends TemplateOverlay {
         this.#showinterval = 5000;
         this.#alivesonly = false;
         this.#delaysort = [];
+        this.#teamsContainer = null;
+    }
+
+    /** Get cached teams container element */
+    get teamsContainer() {
+        if (!this.#teamsContainer) {
+            this.#teamsContainer = this.root?.shadowRoot?.querySelector('.teams');
+        }
+        return this.#teamsContainer;
     }
 
     /**
-     * 現在の生存チーム数を取得
-     * @returns {number} 生存しているチーム数
+     * Get current number of surviving teams / 获取当前存活团队数量
+     * @returns {number} Number of surviving teams / 存活团队数量
      */
     #countAlives() {
         let alives = 0;
@@ -42,7 +53,8 @@ class LeaderBoard extends TemplateOverlay {
     }
 
     #startFadeIn() {
-        const children = this.root.shadowRoot.querySelector('.teams').children;
+        const children = this.teamsContainer?.children;
+        if (!children) return;
         const length = children.length;
         this.#currentshowindex = this.#nextshowindex;
         let start = this.#currentshowindex;
@@ -54,7 +66,7 @@ class LeaderBoard extends TemplateOverlay {
         }
         if (this.#nextshowindex >= length) this.#nextshowindex = 0;
 
-        // FadeIn終了
+        // FadeIn end / 淡入结束
         this.#timerid = setTimeout(() => {
             this.#endFadeIn();
         }, 300); // 300ms
@@ -65,21 +77,22 @@ class LeaderBoard extends TemplateOverlay {
             node.classList.remove(LeaderBoard.FADEIN_CLASS);
         }
         this.sortTeamTotalRank();
-        // FadeOut予約
+        // Schedule FadeOut / 预约淡出
         this.#timerid = setTimeout(() => {
             this.#startFadeOut();
         }, this.#showinterval);
     }
 
     #startFadeOut() {
-        const children = this.root.shadowRoot.querySelector('.teams').children;
+        const children = this.teamsContainer?.children;
+        if (!children) return;
         for (const node of children) {
             if (!node.classList.contains(LeaderBoard.HIDE_CLASS)) {
                 node.classList.remove(LeaderBoard.CHANGED_CLASS);
                 node.classList.add(LeaderBoard.FADEOUT_CLASS);
             }
         }
-        // FadeOut終了
+        // FadeOut end / 淡出结束
         this.#timerid = setTimeout(() => {
             this.#endFadeOut();
         }, 300);
@@ -90,7 +103,7 @@ class LeaderBoard extends TemplateOverlay {
             node.classList.add(LeaderBoard.HIDE_CLASS);
             node.classList.remove(LeaderBoard.FADEOUT_CLASS);
         }
-        // FadeIn予約
+        // Schedule FadeIn / 预约淡入
         this.#timerid = setTimeout(() => {
             this.#startFadeIn();
         }, 0);
@@ -103,8 +116,8 @@ class LeaderBoard extends TemplateOverlay {
     #check() {
         const alives = this.#countAlives();
         if (alives > this.#shownum) {
-            if (this.#timerid >= 0) return; // 既にアニメーション開始済
-            // 全て隠す
+            if (this.#timerid >= 0) return; // Animation already started / 动画已开始
+            // Hide all / 隐藏全部
             for (const [_, team] of Object.entries(this.teams)) {
                 team.classList.add(TemplateOverlay.HIDE_CLASS);
             }
@@ -117,7 +130,7 @@ class LeaderBoard extends TemplateOverlay {
                 clearTimeout(this.#timerid);
                 this.#timerid = -1;
             }
-            // アニメーション用クラスの削除
+            // Remove animation classes / 移除动画类
             for (const node of this.root.shadowRoot.querySelectorAll(`.${LeaderBoard.FADEIN_CLASS}`)) {
                 node.classList.remove(LeaderBoard.FADEIN_CLASS);
             }
@@ -142,35 +155,20 @@ class LeaderBoard extends TemplateOverlay {
     sortTeamTotalRank(changeinfo = []) {
         this.#check();
         this.#delaysort.push(...changeinfo);
-        const teams = Object.values(this.teams);
-        teams.sort((a, b) => {
-            const a_node = a.querySelector('.team-total-rank');
-            const b_node = b.querySelector('.team-total-rank');
-            const a_rank = parseInt(a_node.innerText, 10);
-            const b_rank = parseInt(b_node.innerText, 10);
-            if (a_rank > b_rank) return 1;
-            if (a_rank < b_rank) return -1;
-            return 0;
-        });
+        const root = this.teamsContainer;
+        if (!root) return;
+        sortTeamsByRank(this.teams, '.team-total-rank', root);
 
-        const root = this.root.shadowRoot.querySelector('.teams');
-        for (const team of teams) {
-            const rank = parseInt(team.querySelector('.team-total-rank').innerText, 10) - 1;
-            if (root.children[rank] != team) {
-                root.insertBefore(team, root.children[rank]);
-            }
-        }
-
-        // フェードイン・アウト中は何もしない
-        if (this.root.shadowRoot.querySelector(`.${LeaderBoard.FADEIN_CLASS}`)) return;
-        if (this.root.shadowRoot.querySelector(`.${LeaderBoard.FADEOUT_CLASS}`)) return;
+        // Do nothing during FadeIn/FadeOut / 淡入淡出期间不做任何操作
+        if (root.querySelector(`.${LeaderBoard.FADEIN_CLASS}`)) return;
+        if (root.querySelector(`.${LeaderBoard.FADEOUT_CLASS}`)) return;
 
         if (this.#alivesonly == false) {
-            const children = this.root.shadowRoot.querySelector('.teams').children;
+            const children = root.children;
             let start = this.#currentshowindex;
             for (let i = 0; i < children.length; ++i) {
                 if (start <= i && i < start + this.#shownum) {
-                    // 表示
+                    // Show / 显示
                     children[i].classList.remove(LeaderBoard.HIDE_CLASS);
                     const teamid = parseInt(children[i].dataset.teamId, 10) - 1;
                     if (this.#delaysort.find(x => x.id == teamid && x.changed)) {
@@ -179,7 +177,7 @@ class LeaderBoard extends TemplateOverlay {
                         children[i].classList.add(LeaderBoard.CHANGED_CLASS);
                     }
                 } else {
-                    // 隠す
+                    // Hide / 隐藏
                     children[i].classList.remove(LeaderBoard.FADEIN_CLASS);
                     children[i].classList.remove(LeaderBoard.FADEOUT_CLASS);
                     children[i].classList.remove(LeaderBoard.CHANGED_CLASS);
@@ -207,29 +205,24 @@ class LeaderBoard extends TemplateOverlay {
 
 class MapLeaderBoard extends TemplateOverlay {
     static CHANGED_CLASS = 'changed';
+    #teamsContainer = null;  // Cached DOM reference
+
     constructor() {
         super({types: ["view-map"]});
     }
 
-    sortTeamTotalRank(changeinfo = []) {
-        const teams = Object.values(this.teams);
-        teams.sort((a, b) => {
-            const a_node = a.querySelector('.team-total-rank');
-            const b_node = b.querySelector('.team-total-rank');
-            const a_rank = parseInt(a_node.innerText, 10);
-            const b_rank = parseInt(b_node.innerText, 10);
-            if (a_rank > b_rank) return 1;
-            if (a_rank < b_rank) return -1;
-            return 0;
-        });
-
-        const root = this.root.shadowRoot.querySelector('.teams');
-        for (const team of teams) {
-            const rank = parseInt(team.querySelector('.team-total-rank').innerText, 10) - 1;
-            if (root.children[rank] != team) {
-                root.insertBefore(team, root.children[rank]);
-            }
+    /** Get cached teams container element */
+    get teamsContainer() {
+        if (!this.#teamsContainer) {
+            this.#teamsContainer = this.root?.shadowRoot?.querySelector('.teams');
         }
+        return this.#teamsContainer;
+    }
+
+    sortTeamTotalRank(changeinfo = []) {
+        const root = this.teamsContainer;
+        if (!root) return;
+        sortTeamsByRank(this.teams, '.team-total-rank', root);
 
         for (const x of changeinfo) {
             if (x.changed && x.id in this.teams) {
@@ -265,7 +258,7 @@ class TeamBanner extends TemplateOverlay {
         canvas.height = canvas.clientHeight;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // 切り抜き
+        // Clipping / 裁剪
         const rate = canvas.height / 74;
         ctx.beginPath();
         ctx.moveTo(10 * rate, 0);
@@ -277,12 +270,12 @@ class TeamBanner extends TemplateOverlay {
         ctx.closePath();
         ctx.clip();
 
-        // 背景塗りつぶし
+        // Fill background / 填充背景
         const bgcolor = window.getComputedStyle(canvas).getPropertyValue('--apexrect-background-color');
         ctx.fillStyle = bgcolor != "" ? bgcolor : '#141414';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // 赤枠(X方向)
+        // Red border (X direction) / 红色边框(X方向)
         const bordercolor = window.getComputedStyle(canvas).getPropertyValue('--apexrect-border-color');
         ctx.fillStyle = bordercolor != "" ? bordercolor : '#B03039';
         const xborder = 5;
@@ -295,7 +288,7 @@ class TeamBanner extends TemplateOverlay {
         ctx.lineTo(- xborder + 10 * rate, 0);
         ctx.fill();
 
-        // マッチポイントの場合の背景色描画
+        // Draw background color for match point / 绘制赛点时的背景色
         if (canvas.closest('[data-camera-team-matchpoints="1"]') !== null) {
             const backgroundcolor = window.getComputedStyle(canvas).getPropertyValue('--teambanner-matchpoints-background-color');
             ctx.fillStyle = backgroundcolor != "" ? backgroundcolor : '#B03039';
@@ -319,7 +312,7 @@ class TeamBanner extends TemplateOverlay {
         canvas.height = canvas.clientHeight;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // テキストの描画
+        // Draw text / 绘制文本
         const margin = 10;
         ctx.fillStyle = window.getComputedStyle(canvas).color;
         ctx.font = window.getComputedStyle(canvas).font;
@@ -392,9 +385,9 @@ class SquadEliminated extends TemplateOverlay {
 
     /**
      * @typedef {object} queuedata
-     * @prop {number} placement 順位(1～)
-     * @prop {number|string} teamid チームID(0～)
-     * @prop {string} teamname チーム名
+     * @prop {number} placement Placement (1~) / 排名(1~)
+     * @prop {number|string} teamid Team ID (0~) / 团队ID(0~)
+     * @prop {string} teamname Team name / 团队名称
      */
 
     /** @type {queuedata[]} */
@@ -402,7 +395,7 @@ class SquadEliminated extends TemplateOverlay {
     #target;
 
     /**
-     * コンストラクタ
+     * Constructor / 构造函数
      */
     constructor() {
         super({types: ["view-live"]});
@@ -414,7 +407,7 @@ class SquadEliminated extends TemplateOverlay {
         await super.build();
         this.#target = this.root.shadowRoot.querySelector(`.${SquadEliminated.FADEINOUTTARGET_CLASS}`);
         if (this.#target) {
-            // アニメーション後、クラスを削除
+            // Remove class after animation / 动画后移除类
             this.#target.addEventListener('animationend', (ev) => {
                 if (ev.animationName == SquadEliminated.FADEINOUT_ANIMATION_NAME) {
                     this.#target.classList.remove(SquadEliminated.FADEINOUT_CLASS);
@@ -430,11 +423,11 @@ class SquadEliminated extends TemplateOverlay {
     }
 
     /**
-     * チーム排除情報を設定する
-     * @param {number} placement 順位(1～)
-     * @param {number|string} teamid チームID(0～)
-     * @param {string} teamname チーム名
-     * @param {boolean} init 初期化中
+     * Set team elimination info / 设置团队淘汰信息
+     * @param {number} placement Placement (1~) / 排名(1~)
+     * @param {number|string} teamid Team ID (0~) / 团队ID(0~)
+     * @param {string} teamname Team name / 团队名称
+     * @param {boolean} init During initialization / 初始化中
      * @returns 
      */
     setSquadEliminate(placement, teamid, teamname, init) {
@@ -449,7 +442,7 @@ class SquadEliminated extends TemplateOverlay {
     }
 
     /**
-     * フェードインを開始する
+     * Start fade in / 开始淡入
      */
     #startFadeIn() {
         if (this.#target) {
@@ -458,16 +451,16 @@ class SquadEliminated extends TemplateOverlay {
     }
 
     /**
-     * 次のデータがあるかどうか確認して次の動作を行う
+     * Check if next data exists and perform next action / 检查是否有下一个数据并执行下一步操作
      */
     #checkNext() {
         if (this.#queue.length == 0) {
             return;
         }
 
-        if (this.#target && this.#target.classList.contains(SquadEliminated.FADEINOUT_CLASS)) return; // フェードアウト待ち
+        if (this.#target && this.#target.classList.contains(SquadEliminated.FADEINOUT_CLASS)) return; // Waiting for fade out / 等待淡出
 
-        // 次のデータを表示
+        // Show next data / 显示下一个数据
         const data = this.#queue.shift();
         if (data) {
             this.setParam('eliminated-team-id', parseInt(data.teamid, 10) + 1, true);
@@ -486,10 +479,10 @@ class TeamRespawned extends TemplateOverlay {
 
     /**
      * @typedef {object} queuedata
-     * @prop {number|string} teamid チームID(0～)
-     * @prop {string} teamname チーム名
-     * @prop {string} respawn_playername 蘇生したプレイヤー名
-     * @prop {string[]} respawned_playernames 蘇生されたプレイヤー名
+     * @prop {number|string} teamid Team ID (0~) / 团队ID(0~)
+     * @prop {string} teamname Team name / 团队名称
+     * @prop {string} respawn_playername Player who respawned / 执行复活的玩家名
+     * @prop {string[]} respawned_playernames Names of respawned players / 被复活的玩家名
      */
 
     /** @type {queuedata[]} */
@@ -497,7 +490,7 @@ class TeamRespawned extends TemplateOverlay {
     #target;
 
     /**
-     * コンストラクタ
+     * Constructor / 构造函数
      */
     constructor() {
         super({types: ["view-live"]});
@@ -509,7 +502,7 @@ class TeamRespawned extends TemplateOverlay {
         await super.build();
         this.#target = this.root.shadowRoot.querySelector(`.${TeamRespawned.FADEINOUTTARGET_CLASS}`);
         if (this.#target) {
-            // アニメーション後、クラスを削除
+            // Remove class after animation / 动画后移除类
             this.#target.addEventListener('animationend', (ev) => {
                 if (ev.animationName == TeamRespawned.FADEINOUT_ANIMATION_NAME) {
                     this.#target.classList.remove(TeamRespawned.FADEINOUT_CLASS);
@@ -525,11 +518,11 @@ class TeamRespawned extends TemplateOverlay {
     }
 
     /**
-     * チーム排除情報を設定する
-     * @param {number|string} teamid チームID(0～)
-     * @param {string} teamname チーム名
-     * @param {string} respawn_playername 蘇生したプレイヤー名
-     * @param {string[]} respawned_playernames 蘇生されたプレイヤー名
+     * Set team respawn info / 设置团队复活信息
+     * @param {number|string} teamid Team ID (0~) / 团队ID(0~)
+     * @param {string} teamname Team name / 团队名称
+     * @param {string} respawn_playername Player who respawned / 执行复活的玩家名
+     * @param {string[]} respawned_playernames Names of respawned players / 被复活的玩家名
      * @returns 
      */
     setTeamRespawn(teamid, teamname, respawn_playername, respawned_playernames) {
@@ -543,7 +536,7 @@ class TeamRespawned extends TemplateOverlay {
     }
 
     /**
-     * フェードインを開始する
+     * Start fade in / 开始淡入
      */
     #startFadeIn() {
         if (this.#target) {
@@ -552,16 +545,16 @@ class TeamRespawned extends TemplateOverlay {
     }
 
     /**
-     * 次のデータがあるかどうか確認して次の動作を行う
+     * Check if next data exists and perform next action / 检查是否有下一个数据并执行下一步操作
      */
     #checkNext() {
         if (this.#queue.length == 0) {
             return;
         }
 
-        if (this.#target && this.#target.classList.contains(TeamRespawned.FADEINOUT_CLASS)) return; // フェードアウト待ち
+        if (this.#target && this.#target.classList.contains(TeamRespawned.FADEINOUT_CLASS)) return; // Waiting for fade out / 等待淡出
 
-        // 次のデータを表示
+        // Show next data / 显示下一个数据
         const data = this.#queue.shift();
         if (data) {
             this.setParam('teamrespawned-team-id', parseInt(data.teamid, 10) + 1, true);
@@ -591,5 +584,4 @@ export function initOverlay(params = {}) {
         "teamrespawned": new TeamRespawned(),
     }
     const overlay = new TemplateOverlayHandler(params);
-    console.log(overlay);
 }

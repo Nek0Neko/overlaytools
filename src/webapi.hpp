@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "common.hpp"
 
@@ -9,7 +9,14 @@
 
 namespace app {
 
-	// データタイプ
+	// Input validation constants
+	namespace webapi_limits {
+		constexpr size_t MAX_STRING_LENGTH = 4096;      // Max string length in messages
+		constexpr size_t MAX_JSON_LENGTH = 1024 * 100;  // 100KB max JSON size
+		constexpr size_t MAX_DATA_COUNT = 64;           // Max data elements per message
+	}
+
+	// Data types / 数据类型
 	enum : uint8_t {
 		WEBAPI_DATA_BOOL = 0x00,
 		WEBAPI_DATA_UINT8,
@@ -48,20 +55,20 @@ namespace app {
 		WEBAPI_EVENT_PLAYERABILITYUSED,
 		WEBAPI_EVENT_SQUADELIMINATED,
 
-		// リザルトのクリア・保存
-		WEBAPI_EVENT_CLEAR_LIVEDATA, // 次の試合開始
-		WEBAPI_EVENT_SAVE_RESULT, // 試合終了
+		// Clear/save result / 清除/保存结果
+		WEBAPI_EVENT_CLEAR_LIVEDATA, // Next match start / 下一场比赛开始
+		WEBAPI_EVENT_SAVE_RESULT, // Match end / 比赛结束
 
-		WEBAPI_EVENT_RINGINFO, // リング情報
+		WEBAPI_EVENT_RINGINFO, // Ring info / 圈信息
 
 		WEBAPI_EVENT_PLAYERULTIMATECHARGED,
 
-		// team関連
+		// Team related / 队伍相关
 		WEBAPI_EVENT_TEAM_NAME = 0x20u,
 		WEBAPI_EVENT_TEAM_PLACEMENT,
 		WEBAPI_EVENT_TEAM_RESPAWN,
 
-		// player関連
+		// Player related / 玩家相关
 		WEBAPI_EVENT_PLAYER_ID = 0x30u,
 		WEBAPI_EVENT_PLAYER_NAME,
 		WEBAPI_EVENT_PLAYER_HP,
@@ -73,21 +80,21 @@ namespace app {
 		WEBAPI_EVENT_PLAYER_CHARACTER,
 		WEBAPI_EVENT_PLAYER_ITEMS,
 
-		// KILLイベント(主にTDM用)
+		// KILL event (mainly for TDM) / 击杀事件(主要用于TDM)
 		WEBAPI_EVENT_PLAYER_KILLED,
 		WEBAPI_EVENT_PLAYER_KILLED_COUNT,
 
-		// S20追加
+		// Added in S20 / S20新增
 		WEBAPI_EVENT_PLAYER_LEVEL,
 		WEBAPI_EVENT_PLAYER_PERK,
 
-		// 武器切替
+		// Weapon switch / 武器切换
 		WEBAPI_EVENT_PLAYER_WEAPON,
 
-		// 拡張情報
+		// Extended info / 扩展信息
 		WEBAPI_EVENT_EXTENDED,
 
-		// ロビープレイヤー関連
+		// Lobby player related / 大厅玩家相关
 		WEBAPI_EVENT_LOBBYPLAYER = 0x40u,
 		WEBAPI_EVENT_CUSTOMMATCH_SETTINGS,
 		WEBAPI_EVENT_LOBBYENUM_START,
@@ -95,7 +102,7 @@ namespace app {
 		WEBAPI_EVENT_LOBBYTEAM,
 		WEBAPI_EVENT_LOBBYTOKEN,
 
-		// レジェンドバン
+		// Legend ban / 英雄禁用
 		WEBAPI_EVENT_LEGENDBANENUM_START,
 		WEBAPI_EVENT_LEGENDBANENUM_END,
 		WEBAPI_EVENT_LEGENDBANSTATUS,
@@ -103,7 +110,7 @@ namespace app {
 
 	// from WEBAPI
 	enum : uint8_t {
-		// LiveAPI送信系
+		// LiveAPI send commands / LiveAPI发送命令
 		WEBAPI_SEND_CUSTOMMATCH_SENDCHAT = 0x50u,
 		WEBAPI_SEND_CUSTOMMATCH_CREATELOBBY,
 		WEBAPI_SEND_CUSTOMMATCH_GETLOBBYPLAYERS,
@@ -117,13 +124,13 @@ namespace app {
 		WEBAPI_SEND_CUSTOMMATCH_GETLEGENDBANSTATUS,
 		WEBAPI_SEND_CUSTOMMATCH_SETLEGENDBAN,
 
-		// 途中取得系
+		// Mid-game data retrieval / 比赛中数据获取
 		WEBAPI_LIVEDATA_GET_GAME = 0x60u,
 		WEBAPI_LIVEDATA_GET_TEAMS,
 		WEBAPI_LIVEDATA_GET_TEAM_PLAYERS,
 		WEBAPI_LIVEDATA_GET_OBSERVERS_CAMERA,
 
-		// ローカルパラメータ取得
+		// Local parameter operations / 本地参数操作
 		WEBAPI_LOCALDATA_SET_OBSERVER = 0x70u,
 		WEBAPI_LOCALDATA_GET_OBSERVER,
 		WEBAPI_LOCALDATA_GET_OBSERVERS,
@@ -146,23 +153,23 @@ namespace app {
 		WEBAPI_LOCALDATA_SET_CONFIG,
 		WEBAPI_LOCALDATA_GET_CONFIG,
 
-		// 画面状態
+		// Screen state / 屏幕状态
 		WEBAPI_EVENT_TEAMBANNER_STATE = 0xc0,
 		WEBAPI_EVENT_MAP_STATE,
 
-		// その他
+		// Others / 其他
 		WEBAPI_EVENT_LIVEAPI_SOCKET_STATS = 0xd0,
 		WEBAPI_HTTP_GET_STATS_FROM_CODE,
 		WEBAPI_MANUAL_POSTMATCH,
 
-		// ブロードキャスト
+		// Broadcast / 广播
 		WEBAPI_BROADCAST_OBJECT = 0xF0,
 
-		// バージョン取得
+		// Get version / 获取版本
 		WEBAPI_GET_VERSION = 0xFF,
 	};
 
-	// プレーヤーのステータス
+	// Player status / 玩家状态
 	enum : uint8_t {
 		WEBAPI_PLAYER_STATE_ALIVE = 0x00u,
 		WEBAPI_PLAYER_STATE_DOWN,
@@ -170,7 +177,7 @@ namespace app {
 		WEBAPI_PLAYER_STATE_COLLECTED
 	};
 
-	// アイテム
+	// Items / 物品
 	enum : uint8_t {
 		WEBAPI_ITEM_SYRINGE = 0x10,
 		WEBAPI_ITEM_MEDKIT,
@@ -225,7 +232,7 @@ namespace app {
 		WEBAPI_ITEM_AMP_TYPE_POWER_BOOSTER,
 	};
 
-	// 拡張情報
+	// Extended info / 扩展信息
 	enum : uint8_t {
 		WEBAPI_EXTENDED_KILL,
 		WEBAPI_EXTENDED_KNOCKDOWN,

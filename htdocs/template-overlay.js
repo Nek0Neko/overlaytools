@@ -14,27 +14,27 @@ function convertToCamelCase(s) {
 const defined_item_ids = ["backpack", "knockdownshield", "syringe", "medkit", "shieldcell", "shieldbattery", "phoenixkit", "ultimateaccelerant", "fraggrenade", "thermitgrenade", "arcstar"];
 
 export class TemplateOverlay {
-    /** @type {string} hide()/show()で付与・削除されるクラス名 */
+    /** @type {string} Class name added/removed by hide()/show() / hide()/show()添加/移除的类名 */
     static HIDE_CLASS = "hide";
-    /** @type {string} addForceHide()/removeForceHide()で付与・削除されるクラス名 */
+    /** @type {string} Class name added/removed by addForceHide()/removeForceHide() / addForceHide()/removeForceHide()添加/移除的类名 */
     static FORCEHIDE_CLASS = "forcehide";
 
-    /** @type {string} baseノードのID */
+    /** @type {string} ID of base node / 基础节点的ID */
     id;
-    /** @type {HTMLElement} rootノード */
+    /** @type {HTMLElement} Root node / 根节点 */
     root;
-    /** @type {Array} カスタムタグ一覧 */
+    /** @type {Array} Custom tag list / 自定义标签列表 */
     tags;
     params;
 
-    /** 検索用インデックス */
+    /** Search index / 搜索索引 */
     teams;
     teamplayers;
     players;
     cameraplayers;
 
     /**
-     * コンストラクタ
+     * Constructor / 构造函数
      */
     constructor(param = {}) {
         this.id = this.constructor.name.toLowerCase();
@@ -49,14 +49,14 @@ export class TemplateOverlay {
     }
 
     clear() {
-        // HTMLノードの削除
+        // Remove HTML nodes / 删除HTML节点
         for (const nodes of [this.root.shadowRoot.querySelectorAll('.teams'), this.root.shadowRoot.querySelectorAll('.players'), this.root.shadowRoot.querySelectorAll('.cameraplayers')]) {
             for (const node of nodes) {
                 while (node.firstChild) { node.firstChild.remove(); }
             }
         }
 
-        // 索引のクリア
+        // Clear index / 清除索引
         for (const target of [this.teams, this.teamplayers, this.players, this.cameraplayers]) {
             for (var key in target) {
                 if (target.hasOwnProperty(key)) {
@@ -67,14 +67,14 @@ export class TemplateOverlay {
     }
 
     clearTeamPlayers() {
-        // HTMLノードの削除
+        // Remove HTML nodes / 删除HTML节点
         for (const nodes of [this.root.shadowRoot.querySelectorAll('.teamplayers')]) {
             for (const node of nodes) {
                 while (node.firstChild) { node.firstChild.remove(); }
             }
         }
 
-        // 索引のクリア
+        // Clear index / 清除索引
         for (const target of [this.teamplayers]) {
             for (var key in target) {
                 if (target.hasOwnProperty(key)) {
@@ -85,14 +85,14 @@ export class TemplateOverlay {
     }
 
     clearCameraPlayers() {
-        // HTMLノードの削除
+        // Remove HTML nodes / 删除HTML节点
         for (const nodes of [this.root.shadowRoot.querySelectorAll('.cameraplayers')]) {
             for (const node of nodes) {
                 while (node.firstChild) { node.firstChild.remove(); }
             }
         }
 
-        // 索引のクリア
+        // Clear index / 清除索引
         for (const target of [this.cameraplayers]) {
             for (var key in target) {
                 if (target.hasOwnProperty(key)) {
@@ -102,24 +102,43 @@ export class TemplateOverlay {
         }
     }
 
-    async fetchURL(url) {
-        try {
-            const response = await fetch(url);
-            if (!response.ok) return null;
-            return await response.text();
-        } catch (e) {
-            console.warn(e);
-            return null;
+    async fetchURL(url, options = {}) {
+        const { timeout = 10000, retries = 2 } = options;
+        
+        for (let attempt = 0; attempt <= retries; attempt++) {
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), timeout);
+                
+                const response = await fetch(url, { signal: controller.signal });
+                clearTimeout(timeoutId);
+                
+                if (!response.ok) {
+                    console.warn(`fetchURL: HTTP ${response.status} for ${url}`);
+                    return null;
+                }
+                return await response.text();
+            } catch (e) {
+                if (e.name === 'AbortError') {
+                    console.warn(`fetchURL: Timeout after ${timeout}ms for ${url} (attempt ${attempt + 1}/${retries + 1})`);
+                } else {
+                    console.warn(`fetchURL: Error fetching ${url} (attempt ${attempt + 1}/${retries + 1}):`, e.message);
+                }
+                if (attempt === retries) return null;
+                // Wait before retry with exponential backoff
+                await new Promise(r => setTimeout(r, Math.min(1000 * Math.pow(2, attempt), 5000)));
+            }
         }
+        return null;
     }
 
     async buildCSS() {
-        // 全体共通
+        // Common to all / 全局通用
         const date = Date.now();
         const basesheet = new CSSStyleSheet();
         basesheet.replaceSync('.hide, .forcehide { position: absolute; left: -3840px; top: 2160px; }');
 
-        // 個別
+        // Individual / 个别
         let css = await this.fetchURL(`custom-overlays/${this.id}.css?${date}`);
         if (!css) css = await this.fetchURL(`overlays/${this.id}.css?${date}`);
         if (!css) css = '';
@@ -164,7 +183,7 @@ export class TemplateOverlay {
 
         this.tags.push(id);
 
-        // ルートに追加
+        // Add to root / 添加到根节点
         const root = document.createElement(id);
         document.getElementById('overlays').appendChild(root);
         this.root = root;
@@ -199,7 +218,7 @@ export class TemplateOverlay {
 
     buildParams() {
         for (const id of this.tags) {
-            // クラスを列挙
+            // Enumerate classes / 枚举类
             const params = [];
             if (id == `overlay-${this.id}`) {
                 for (const n of document.getElementById(id).content.querySelectorAll('*')) {
@@ -234,34 +253,34 @@ export class TemplateOverlay {
         const sheets = await this.buildCSS();
         const base = await this.buildBase(sheets);
 
-        // チーム一覧が必要な場合
+        // If team list is needed / 如果需要团队列表
         if (base && base.content.querySelector('.teams')) {
             const teams = await this.buildParts('teams', this.getChildClass(base.content.querySelector('.teams')));
 
-            // チームの中にteamplayersクラスがある場合
+            // If teamplayers class exists within team / 如果团队中存在teamplayers类
             if (teams && teams.querySelector('.teamplayers')) {
                 await this.buildParts('teamplayers', this.getChildClass(teams.querySelector('.teamplayers')));
             }
         }
 
-        // プレイヤー一覧が必要な場合
+        // If player list is needed / 如果需要玩家列表
         if (base && base.content.querySelector('.players')) {
             await this.buildParts('players', this.getChildClass(base.content.querySelector('.players')));
         }
 
-        // カメラプレイヤー一覧が必要な場合
+        // If camera player list is needed / 如果需要摄像机玩家列表
         if (base && base.content.querySelector('.cameraplayers')) {
             await this.buildParts('cameraplayers', this.getChildClass(base.content.querySelector('.cameraplayers')));
         }
 
-        // パラメータ一覧作成
+        // Create parameter list / 创建参数列表
         this.buildParams();
 
         return true;
     }
 
     addTeam(teamid, teams) {
-        if (teamid in this.teams) return [this.teams[teamid], false]; // 既に存在する
+        if (teamid in this.teams) return [this.teams[teamid], false]; // Already exists / 已存在
         const div = document.getElementById(`overlay-parts`).content.querySelector(`.${this.id}-teams`);
         if (!div) return [null, false];
         const clone = document.importNode(div, true);
@@ -273,7 +292,7 @@ export class TemplateOverlay {
     }
 
     addTeamPlayer(teamid, playerid, teamplayers) {
-        if (teamid in this.teamplayers && playerid in this.teamplayers[teamid]) return [this.teamplayers[teamid][playerid], false]; // 既に存在する
+        if (teamid in this.teamplayers && playerid in this.teamplayers[teamid]) return [this.teamplayers[teamid][playerid], false]; // Already exists / 已存在
         if (!(teamid in this.teamplayers)) this.teamplayers[teamid] = {};
         const div = document.getElementById(`overlay-parts`).content.querySelector(`.${this.id}-teamplayers`);
         if (!div) return [null, false];
@@ -286,7 +305,7 @@ export class TemplateOverlay {
     }
 
     addPlayer(playerid, players) {
-        if (playerid in this.players) return [this.players[playerid], false]; // 既に存在する
+        if (playerid in this.players) return [this.players[playerid], false]; // Already exists / 已存在
         const div = document.getElementById(`overlay-parts`).content.querySelector(`.${this.id}-players`);
         if (!div) return [null, false];
         const clone = document.importNode(div, true);
@@ -298,7 +317,7 @@ export class TemplateOverlay {
     }
 
     addCameraPlayer(playerid, cameraplayers) {
-        if (playerid in this.cameraplayers) return [this.cameraplayers[playerid], false]; // 既に存在する
+        if (playerid in this.cameraplayers) return [this.cameraplayers[playerid], false]; // Already exists / 已存在
         const div = document.getElementById(`overlay-parts`).content.querySelector(`.${this.id}-cameraplayers`);
         if (!div) return [null, false];
         const clone = document.importNode(div, true);
@@ -322,8 +341,8 @@ export class TemplateOverlay {
 
     setParam(paramname, paramvalue, dataset = false) {
         const tag = `overlay-${this.id}`;
-        if (this.tags.indexOf(tag) < 0) return; // 未サポート
-        if (this.params[tag].indexOf(paramname) < 0) return; // 入力先なし
+        if (this.tags.indexOf(tag) < 0) return; // Not supported / 不支持
+        if (this.params[tag].indexOf(paramname) < 0) return; // No input destination / 无输入目标
 
         for (const target of this.root.shadowRoot.querySelectorAll(`.${paramname}`)) {
             this.setDatasetAndInnerText(target, paramname, paramvalue, dataset);
@@ -332,8 +351,8 @@ export class TemplateOverlay {
 
     setTeamParam(teamid, paramname, paramvalue, dataset = false) {
         const tag_teams = `${this.id}-teams`;
-        if (this.tags.indexOf(tag_teams) < 0) return; // 未サポート
-        if (this.params[tag_teams].indexOf(paramname) < 0) return; // 入力先なし
+        if (this.tags.indexOf(tag_teams) < 0) return; // Not supported / 不支持
+        if (this.params[tag_teams].indexOf(paramname) < 0) return; // No input destination / 无输入目标
 
         const teams = this.root.shadowRoot.querySelector(`.teams`);
         if (!teams) return;
@@ -357,9 +376,9 @@ export class TemplateOverlay {
     setTeamPlayerParam(teamid, playerid, paramname, paramvalue, dataset = false) {
         const tag_teams = `${this.id}-teams`;
         const tag_teamplayers = `${this.id}-teamplayers`;
-        if (this.tags.indexOf(tag_teams) < 0) return; // 未サポート
-        if (this.tags.indexOf(tag_teamplayers) < 0) return; // 未サポート
-        if (this.params[tag_teamplayers].indexOf(paramname) < 0) return; // 入力先なし
+        if (this.tags.indexOf(tag_teams) < 0) return; // Not supported / 不支持
+        if (this.tags.indexOf(tag_teamplayers) < 0) return; // Not supported / 不支持
+        if (this.params[tag_teamplayers].indexOf(paramname) < 0) return; // No input destination / 无输入目标
 
         const teams = this.root.shadowRoot.querySelector(`.teams`);
         if (!teams) return;
@@ -392,8 +411,8 @@ export class TemplateOverlay {
 
     setPlayerParam(playerid, paramname, paramvalue, dataset = false) {
         const tag_players = `${this.id}-players`;
-        if (this.tags.indexOf(tag_players) < 0) return; // 未サポート
-        if (this.params[tag_players].indexOf(paramname) < 0) return; // 入力先なし
+        if (this.tags.indexOf(tag_players) < 0) return; // Not supported / 不支持
+        if (this.params[tag_players].indexOf(paramname) < 0) return; // No input destination / 无输入目标
 
         const players = this.root.shadowRoot.querySelector(`.players`);
         if (!players) return;
@@ -416,8 +435,8 @@ export class TemplateOverlay {
 
     setCameraPlayerParam(playerid, paramname, paramvalue, dataset = false) {
         const tag_cameraplayers = `${this.id}-cameraplayers`;
-        if (this.tags.indexOf(tag_cameraplayers) < 0) return; // 未サポート
-        if (this.params[tag_cameraplayers].indexOf(paramname) < 0) return; // 入力先なし
+        if (this.tags.indexOf(tag_cameraplayers) < 0) return; // Not supported / 不支持
+        if (this.params[tag_cameraplayers].indexOf(paramname) < 0) return; // No input destination / 无输入目标
 
         const cameraplayers = this.root.shadowRoot.querySelector(`.cameraplayers`);
         if (!cameraplayers) return;
@@ -481,7 +500,7 @@ export class TemplateOverlay {
     }
 
     /**
-     * 指定されたタイプを所持しているか
+     * Check if has specified type / 检查是否具有指定类型
      * @param {string} type 
      * @returns {boolean}
      */
@@ -495,18 +514,18 @@ export class TemplateOverlayHandler extends EventTarget {
     #initparams;
     /** @type {ApexWebAPI} */
     #webapi;
-    /** @type {import("./overlay-common.js").teamresults} 計算用チームデータ */
-    #game; // WebAPIのゲームオブジェクト(変更しない)
+    /** @type {import("./overlay-common.js").teamresults} Team data for calculation / 计算用团队数据 */
+    #game; // WebAPI game object (do not modify) / WebAPI游戏对象(不修改)
     #game_state;
-    #results; // WebAPIから取得したリザルト(変更しない、追加のみ)
+    #results; // Results from WebAPI (do not modify, only add) / 从WebAPI获取的结果(不修改,仅添加)
     #results_count;
-    /** @type {boolean} 現在の試合のデータを順位・ポイント計算に含めるかどうか */
+    /** @type {boolean} Whether to include current match data in ranking/point calculation / 是否将当前比赛数据包含在排名/积分计算中 */
     #calc_resultsonly;
-    /** @type {boolean} getAll進行中 */
+    /** @type {boolean} getAll in progress / getAll进行中 */
     #getallprocessing;
     #overlays;
     #saved_teamresults;
-    /* トーナメント情報 */
+    /* Tournament info / 锦标赛信息 */
     #tournament_id;
     #tournament_name;
     #tournament_params;
@@ -515,12 +534,12 @@ export class TemplateOverlayHandler extends EventTarget {
     #player_index;
     #player_index_singleresult;
     #player_index_totalresult;
-    /* カメラ情報 */
+    /* Camera info / 摄像机信息 */
     #camera_teamid;
     #camera_playerhash;
-    /** @type {number} 再接続試行をカウントする */
+    /** @type {number} Count reconnection attempts / 计数重连尝试 */
     #retry;
-    /** @type {boolean} 再接続試行中 */
+    /** @type {boolean} Reconnection in progress / 重连进行中 */
     #reconnecting;
     #recognition;
     #teambanner_recognition_delay;
@@ -529,8 +548,8 @@ export class TemplateOverlayHandler extends EventTarget {
     #winner_determine;
 
     /**
-     * コンストラクタ
-     * @param {string} url 接続先WebSocketのURL
+     * Constructor / 构造函数
+     * @param {string} url WebSocket URL to connect / 要连接的WebSocket URL
      */
     constructor(params = {}) {
         super();
@@ -592,8 +611,8 @@ export class TemplateOverlayHandler extends EventTarget {
     }
 
     /**
-     * WebAPIに関連する部分のセットアップを行う
-     * @param {string} url 接続先WebSocketのURL
+     * Setup WebAPI related parts / 设置WebAPI相关部分
+     * @param {string} url WebSocket URL to connect / 要连接的WebSocket URL
      */
     #setupApexWebAPI(url) {
         this.#webapi = new ApexWebAPI(url);
@@ -636,7 +655,7 @@ export class TemplateOverlayHandler extends EventTarget {
             }
         });
 
-        // トーナメントの変更・新規作成
+        // Tournament change/creation / 锦标赛变更/新建
         this.#webapi.addEventListener("settournamentname", (ev) => {
             if (this.#tournament_id != ev.detail.id) {
                 this.#updatedTournamentId(ev.detail.id);
@@ -673,20 +692,20 @@ export class TemplateOverlayHandler extends EventTarget {
         });
 
 
-        // 結果の保存
+        // Save results / 保存结果
         this.#webapi.addEventListener("saveresult", (ev) => {
             if (this.#calc_resultsonly != false) {
                 this.#updatedCalcResultsOnly(true);
             }
             if (ev.detail.gameid == this.#results.length) {
-                // 既存のリザルトに追加
+                // Add to existing results / 添加到现有结果
                 this.#results.push(ev.detail.result);
                 if (!this.#getallprocessing) this.#reCalc();
                 this.#updatedSingleResult();
                 this.#updatedTotalResultPlayers();
                 this.#updatedParticipatedTeamsInformation();
             } else {
-                // 足りていない場合は再取得
+                // Re-fetch if insufficient / 如果不足则重新获取
                 this.#webapi.getTournamentResults();
             }
 
@@ -712,7 +731,7 @@ export class TemplateOverlayHandler extends EventTarget {
             }
         });
 
-        // 勝者確定
+        // Winner determined / 确定获胜者
         this.#webapi.addEventListener("winnerdetermine", (ev) => {
             this.#updatedWinnerDetermine(ev.detail.team.id);
         });
@@ -743,7 +762,7 @@ export class TemplateOverlayHandler extends EventTarget {
             }
         });
 
-        // プレイヤー名系
+        // Player name related / 玩家名称相关
         this.#webapi.addEventListener("playername", (ev) => {
             this.#updatedPlayerName(ev.detail.player.hash, ev.detail.player.name);
             this.#updatedPlayerSingleResultName(ev.detail.player.hash, this.#getPlayerName(ev.detail.player.hash, ev.detail.player.name));
@@ -790,14 +809,14 @@ export class TemplateOverlayHandler extends EventTarget {
             }
         });
 
-        // キル数変更
+        // Kill count change / 击杀数变更
         this.#webapi.addEventListener("playerstats", (ev) => {
             this.#updatedTeamKills(ev.detail.team.id, ev.detail.team.kills);
             this.#updatedPlayerKills(ev.detail.player.hash, ev.detail.player.kills);
             if (!this.#getallprocessing) this.#reCalc();
         });
 
-        // プレーヤーステータス変更
+        // Player status change / 玩家状态变更
         this.#webapi.addEventListener("playerhash", (ev) => {
             const teamid = ev.detail.team.id;
             const playerhash = ev.detail.player.hash;
@@ -830,20 +849,20 @@ export class TemplateOverlayHandler extends EventTarget {
 
         const checkObserverHash = (ev) => {
             if ('observerhash' in this.#initparams) {
-                // オブザーバーハッシュが固定で指定されている場合
+                // If observer hash is fixed / 如果观察者哈希固定指定
                 const hash = this.#initparams.observerhash;
                 if (hash == ev.detail.observer.hash) {
                     return true;
                 }
             } else {
-                // オブザーバーハッシュがWebAPIからのイベントである場合
+                // If observer hash is from WebAPI event / 如果观察者哈希来自WebAPI事件
                 if (ev.detail.own) return true;
             }
             return false;
         }
 
         this.#webapi.addEventListener("observerswitch", (ev) => {
-            // オブザーバーの切り替えイベントが担当カメラのハッシュであるか確認
+            // Check if observer switch event matches assigned camera hash / 检查观察者切换事件是否匹配分配的摄像机哈希
             if (!checkObserverHash(ev)) return;
 
             const teamid = ev.detail.team.id;
@@ -860,7 +879,7 @@ export class TemplateOverlayHandler extends EventTarget {
             this.#updatedPlayerItem(playerhash, itemid, count);
         });
 
-        // チームバナーの表示状態
+        // Team banner display state / 团队横幅显示状态
         this.#webapi.addEventListener("teambannerstate", (ev) => {
             const state = ev.detail.state;
             this.#teambanner_queue.splice(0);
@@ -877,26 +896,26 @@ export class TemplateOverlayHandler extends EventTarget {
             }, this.#teambanner_recognition_delay);
         });
 
-        // マップの表示状態
+        // Map display state / 地图显示状态
         this.#webapi.addEventListener("mapstate", (ev) => {
             const state = ev.detail.state;
             this.#recognition.map = state;
             this.#showHideFromCurrentStatus();
         });
 
-        // マッチ情報
+        // Match info / 比赛信息
         this.#webapi.addEventListener("matchsetup", (ev) => {
             this.#updatedMapName('map' in ev.detail.game ? ev.detail.game.map : '');
         });
 
-        // LiveAPI側の接続状況
+        // LiveAPI connection status / LiveAPI连接状态
         this.#webapi.addEventListener("liveapisocketstats", (ev) => {
             if (this.#liveapi_connection_count != ev.detail.conn) {
                 this.#updatedLiveAPIConnectionCount(ev.detail.conn);
             }
         });
 
-        // Overlayの表示状態
+        // Overlay display state / 叠加层显示状态
         this.#webapi.addEventListener("gettournamentparams", (ev) => {
             this.#updatedTournamentParams(ev.detail.params);
             if (!this.#getallprocessing) this.#reCalc();
@@ -909,7 +928,7 @@ export class TemplateOverlayHandler extends EventTarget {
             }
         });
 
-        // MatchResultの表示非表示命令
+        // MatchResult show/hide command / MatchResult显示/隐藏命令
         this.#webapi.addEventListener("broadcastobject", (ev) => {
             if (ev.detail.data) {
                 const data = ev.detail.data;
@@ -997,10 +1016,10 @@ export class TemplateOverlayHandler extends EventTarget {
     }
 
     /**
-     * 接続が切れたりエラーで失敗した場合の再接続処理
+     * Reconnection handling when disconnected or failed with error / 断开连接或出错时的重连处理
      */
     #tryReconnect() {
-        /** @type {number[]} 再接続試行の間隔(ms) */
+        /** @type {number[]} Reconnection attempt intervals (ms) / 重连尝试间隔(ms) */
         const intervals = [1000, 2000, 4000, 8000];
         let interval = intervals[intervals.length - 1];
         if (this.#retry < intervals.length) interval = intervals[this.#retry];
@@ -1015,7 +1034,7 @@ export class TemplateOverlayHandler extends EventTarget {
     }
 
     /**
-     * ゲームの進行状況から表示/非表示を行う
+     * Show/hide based on game progress / 根据游戏进度显示/隐藏
      */
     #showHideFromCurrentStatus() {
         const game = this.#game_state;
@@ -1040,7 +1059,7 @@ export class TemplateOverlayHandler extends EventTarget {
                     }
                     break;
                 case "Playing":
-                    // マップ表示時
+                    // When map is displayed / 显示地图时
                     if (banner > 0) {
                         if (view_camera && !winner_determine) flag = true;
                         if (view_live) flag = true;
@@ -1066,7 +1085,7 @@ export class TemplateOverlayHandler extends EventTarget {
     }
 
     /**
-     * 全てのチームのパラメータを取得する(1～30)
+     * Get parameters for all teams (1~30) / 获取所有团队的参数(1~30)
      */
     #getAllTeamParams() {
         for (let i = 0; i < 30; ++i) {
@@ -1075,9 +1094,9 @@ export class TemplateOverlayHandler extends EventTarget {
     }
 
     /**
-     * チームのパラメータが更新された際の処理
-     * @param {number} teamid チームID(0～)
-     * @param {object} params チームのパラメータ
+     * Handling when team parameters are updated / 团队参数更新时的处理
+     * @param {number} teamid Team ID (0~) / 团队ID(0~)
+     * @param {object} params Team parameters / 团队参数
      */
     #updatedTeamParams(teamid, params) {
         this.#team_params[teamid] = params;
@@ -1087,9 +1106,9 @@ export class TemplateOverlayHandler extends EventTarget {
     }
 
     /**
-     * チームの名前が更新された際の処理
-     * @param {number} teamid チームID(0～)
-     * @param {string} name チームの名前
+     * Handling when team name is updated / 团队名称更新时的处理
+     * @param {number} teamid Team ID (0~) / 团队ID(0~)
+     * @param {string} name Team name / 团队名称
      */
     #updatedTeamName(teamid, name) {
         for (const overlay of Object.values(this.#overlays)) {
@@ -1110,9 +1129,9 @@ export class TemplateOverlayHandler extends EventTarget {
     }
 
     /**
-     * チームの順位が変わった場合に呼び出される
-     * @param {string} teamid チームID(0～)
-     * @param {number} rank 現在の順位(0～)
+     * Called when team rank changes / 团队排名变化时调用
+     * @param {string} teamid Team ID (0~) / 团队ID(0~)
+     * @param {number} rank Current rank (0~) / 当前排名(0~)
      */
     #updatedTeamTotalRank(teamid, rank) {
         for (const overlay of Object.values(this.#overlays)) {
@@ -1157,9 +1176,9 @@ export class TemplateOverlayHandler extends EventTarget {
         }
     }
     /**
-     * チームの合計キルポイントが変わった場合に呼び出される
-     * @param {string} teamid チームID(0～)
-     * @param {number} points 現在の合計キルポイント
+     * Called when team total kill points change / 团队总击杀积分变化时调用
+     * @param {string} teamid Team ID (0~) / 团队ID(0~)
+     * @param {number} points Current total kill points / 当前总击杀积分
      */
     #updatedTeamTotalKillPoints(teamid, points) {
         for (const overlay of Object.values(this.#overlays)) {
@@ -1168,9 +1187,9 @@ export class TemplateOverlayHandler extends EventTarget {
     }
 
     /**
-     * チームの合計順位ポイントが変わった場合に呼び出される
-     * @param {string} teamid チームID(0～)
-     * @param {number} points 現在の合計順位ポイント
+     * Called when team total placement points change / 团队总排名积分变化时调用
+     * @param {string} teamid Team ID (0~) / 团队ID(0~)
+     * @param {number} points Current total placement points / 当前总排名积分
      */
     #updatedTeamTotalPlacementPoints(teamid, points) {
         for (const overlay of Object.values(this.#overlays)) {
@@ -1179,9 +1198,9 @@ export class TemplateOverlayHandler extends EventTarget {
     }
 
     /**
-     * チームの合計ポイントが変わった場合に呼び出される
-     * @param {string} teamid チームID(0～)
-     * @param {number} points 現在の合計ポイント
+     * Called when team total points change / 团队总积分变化时调用
+     * @param {string} teamid Team ID (0~) / 团队ID(0~)
+     * @param {number} points Current total points / 当前总积分
      */
     #updatedTeamTotalPoints(teamid, points) {
         for (const overlay of Object.values(this.#overlays)) {
@@ -1254,9 +1273,9 @@ export class TemplateOverlayHandler extends EventTarget {
     }
 
     /**
-     * プレイヤーのパラメータが更新された際の処理
-     * @param {string} hash プレイヤーID
-     * @param {object} params プレイヤーのパラメータ
+     * Handling when player parameters are updated / 玩家参数更新时的处理
+     * @param {string} hash Player ID / 玩家ID
+     * @param {object} params Player parameters / 玩家参数
      */
     #updatedPlayerParams(hash, params) {
         if (hash == '') return;
@@ -1302,7 +1321,7 @@ export class TemplateOverlayHandler extends EventTarget {
 
     #updatedPlayerParam(hash, param, value) {
         if (hash in this.#player_index) {
-            // 現ゲームに存在するプレイヤー処理
+            // Process player existing in current game / 处理当前游戏中存在的玩家
             const player = this.#player_index[hash];
             for (const overlay of Object.values(this.#overlays)) {
                 if (!overlay.hasType("players-singleresult") && !overlay.hasType("players-totalresult")) {
@@ -1417,7 +1436,7 @@ export class TemplateOverlayHandler extends EventTarget {
     #updatedWinnerDetermine(teamid) {
         this.#winner_determine = true;
         for (const overlay of Object.values(this.#overlays)) {
-            // ChampionBannerの表示
+            // Display ChampionBanner / 显示冠军横幅
             if ('setWinnerDetermine' in overlay && typeof(overlay.setWinnerDetermine) == 'function') {
                 const teamname = this.#getTeamName(teamid);
                 overlay.setWinnerDetermine(teamid, teamname);
@@ -1428,14 +1447,14 @@ export class TemplateOverlayHandler extends EventTarget {
 
     #updatedTeamExists(teamid) {
         for (const overlay of Object.values(this.#overlays)) {
-            overlay.addTeamClass(teamid, 'team-exists'); // 存在するチームにクラスを付与
+            overlay.addTeamClass(teamid, 'team-exists'); // Add class to existing team / 给存在的团队添加类
         }
     }
 
     #updatedSquadEliminate(placement, teamid, init) {
         for (const overlay of Object.values(this.#overlays)) {
             overlay.setTeamParam(teamid, 'team-eliminated', 1)
-            overlay.addTeamClass(teamid, 'team-squad-eliminate'); // 削除されたチームにクラスを付与
+            overlay.addTeamClass(teamid, 'team-squad-eliminate'); // Add class to eliminated team / 给被淘汰的团队添加类
             if ('setSquadEliminate' in overlay && typeof(overlay.setSquadEliminate) == 'function') {
                 const teamname = this.#getTeamName(teamid);
                 overlay.setSquadEliminate(placement, teamid, teamname, init);
@@ -1489,7 +1508,7 @@ export class TemplateOverlayHandler extends EventTarget {
     }
 
     #updatedPlayerState(hash, state) {
-        // 特定のメソッドを呼び出す
+        // Call specific method / 调用特定方法
         if (hash in this.#player_index) {
             const player = this.#player_index[hash];
             for (const overlay of Object.values(this.#overlays)) {
@@ -1515,8 +1534,8 @@ export class TemplateOverlayHandler extends EventTarget {
 
     #updatedGame(game) {
         this.#game = game;
-        this.#player_index = {}; // ゲームに紐づくindexは削除
-        this.#saved_teamresults = {}; // ポイント情報を初期化
+        this.#player_index = {}; // Delete index linked to game / 删除与游戏关联的索引
+        this.#saved_teamresults = {}; // Initialize point info / 初始化积分信息
         if ('state' in game && this.#game_state != game.state) {
             this.#updatedGameState(game.state);
         }
@@ -1530,7 +1549,7 @@ export class TemplateOverlayHandler extends EventTarget {
             overlay.setParam('game-state', state);
         }
 
-        // 計算方法の変更確認
+        // Check calculation method change / 检查计算方法变更
         let calc_resultsonly = this.#calc_resultsonly;
         switch(state) {
             case "WaitingForPlayers":
@@ -1553,9 +1572,9 @@ export class TemplateOverlayHandler extends EventTarget {
     }
 
     /**
-     * カメラが切り替わった際に呼び出される
-     * @param {number} teamid チームID(0～)
-     * @param {number} playerhash プレイヤーのID(ハッシュ)
+     * Called when camera switches / 切换摄像机时调用
+     * @param {number} teamid Team ID (0~) / 团队ID(0~)
+     * @param {number} playerhash Player ID (hash) / 玩家ID(哈希)
      */
     #updatedCamera(teamid, playerhash) {
         if (this.#camera_teamid != teamid) {
@@ -1572,15 +1591,15 @@ export class TemplateOverlayHandler extends EventTarget {
         this.#updatedCameraTeamName(this.#getTeamName(teamid));
         this.#updatedCameraPlayerName(this.#getPlayerName(playerhash));
 
-        // チームデータが存在する場合
+        // If team data exists / 如果团队数据存在
         if (this.#game && 'teams' in this.#game) {
             if (0 <= teamid && teamid < this.#game.teams.length) {
                 const team = this.#game.teams[teamid];
-                // チームキル更新
+                // Update team kills / 更新团队击杀数
                 if ('kills' in team) {
                     this.#updatedCameraTeamKills(team.kills);
                 }
-                // プレイヤーデータ処理
+                // Process player data / 处理玩家数据
                 if ('players' in team) {
                     for (const player of team.players) {
                         this.#updatedCameraPlayersId(player.hash);
@@ -1605,7 +1624,7 @@ export class TemplateOverlayHandler extends EventTarget {
             }
         }
 
-        // ポイントデータが存在する場合
+        // If point data exists / 如果积分数据存在
         if (this.#camera_teamid in this.#saved_teamresults) {
             const team = this.#saved_teamresults[teamid];
             if ('rank' in team) {
@@ -1623,7 +1642,7 @@ export class TemplateOverlayHandler extends EventTarget {
         }
     }
 
-    /* カメラ系 */
+    /* Camera related / 摄像机相关 */
     #updatedCameraTeamId(teamid) {
         for (const overlay of Object.values(this.#overlays)) {
             overlay.setParam('camera-team-id', parseInt(teamid, 10) + 1);
@@ -1682,7 +1701,7 @@ export class TemplateOverlayHandler extends EventTarget {
         this.#updatedCameraPlayerParam(`item-${itemid}`, count);
     }
 
-    /* cameraplayers系 */
+    /* cameraplayers related / cameraplayers相关 */
     #clearCameraPlayers() {
         for (const overlay of Object.values(this.#overlays)) {
             overlay.clearCameraPlayers();
@@ -1710,14 +1729,14 @@ export class TemplateOverlayHandler extends EventTarget {
     }
 
     /**
-     * 現在の順位・キル数からポイントを計算する
+     * Calculate points from current rank and kills / 根据当前排名和击杀数计算积分
      */
     #calcPoints() {
-        // リザルトデータを格納
+        // Store result data / 存储结果数据
         const teamresults = resultsToTeamResults(this.#results);
         if (!this.#calc_resultsonly) {
             let added = false;
-            // 現在の試合のポイントをいれる
+            // Add points for current match / 添加当前比赛的积分
             for (let teamid = 0; teamid < this.#game.teams.length; ++teamid) {
                 const src = this.#game.teams[teamid];
                 if (src.players.length > 0) {
@@ -1732,7 +1751,7 @@ export class TemplateOverlayHandler extends EventTarget {
             }
 
             if (added) {
-                // 他の未参加チームのデータを追加する(順位は0xff)
+                // Add data for other non-participating teams (placement is 0xff) / 添加其他未参与团队的数据(排名为0xff)
                 for (const team of Object.values(teamresults)) {
                     while (team.kills.length < this.#results.length + 1) { team.kills.push(0) }
                     while (team.placements.length < this.#results.length + 1) { team.placements.push(0xff) }
@@ -1740,10 +1759,10 @@ export class TemplateOverlayHandler extends EventTarget {
             }
         }
 
-        // マッチポイント閾値を取得
+        // Get match point threshold / 获取赛点阈值
         const matchpoints = ('calcmethod' in this.#tournament_params && 'matchpoints' in this.#tournament_params.calcmethod && this.#tournament_params.calcmethod.matchpoints > 0) ? this.#tournament_params.calcmethod.matchpoints : 0;
 
-        // ポイントを計算して追加
+        // Calculate and add points / 计算并添加积分
         for (const [teamidstr, team] of Object.entries(teamresults)) {
             const teamid = parseInt(teamidstr, 10);
             const advancepoint = getAdvancePoints(teamid, this.#tournament_params);
@@ -1755,7 +1774,7 @@ export class TemplateOverlayHandler extends EventTarget {
                 team.other_points.push(points.other);
                 team.cumulative_points.push(advancepoint + team.points.reduce((p, c) => p + c, 0));
 
-                // マッチポイント到達の確認
+                // Check match point reached / 检查是否达到赛点
                 let check_gameid = this.#calc_resultsonly ? gameid : gameid - 1;
                 if (matchpoints > 0 && gameid > 0 && team.cumulative_points[check_gameid] >= matchpoints) {
                     team.matchpoints = true;
@@ -1764,7 +1783,7 @@ export class TemplateOverlayHandler extends EventTarget {
             team.total_points = advancepoint + team.points.reduce((a, c) => a + c, 0);
         }
 
-        // マッチポイントの勝者決定
+        // Determine match point winner / 确定赛点获胜者
         if (matchpoints > 0) {
             for (const i of [...Array(this.#results.length).keys()]) {
                 if (i == 0) continue;
@@ -1776,26 +1795,26 @@ export class TemplateOverlayHandler extends EventTarget {
                         break;
                     }
                 }
-                // 勝者決定済
+                // Winner already determined / 获胜者已确定
                 if (Object.values(teamresults).some(x => x.winner)) break;
             }
         }
 
-        // 順位計算
+        // Calculate rank / 计算排名
         setRankParameterToTeamResults(teamresults);
 
         return teamresults;
     }
 
     /**
-     * 計算～表示までの処理を行う
+     * Process from calculation to display / 从计算到显示的处理
      */
     #reCalc() {
         const teamresults = this.#calcPoints();
         const changeinfo = [];
         for (const [teamidstr, teamresult] of Object.entries(teamresults)) {
             const teamid = parseInt(teamidstr, 10);
-            // 順位・ポイント・マッチポイント変動確認
+            // Check rank/points/match point changes / 检查排名/积分/赛点变动
             let rank_flag = true;
             let points_flag = true;
             let matchpoints_flag = true;
@@ -1838,13 +1857,13 @@ export class TemplateOverlayHandler extends EventTarget {
     }
 
     /**
-     * 最新のリザルトを処理する
+     * Process latest result / 处理最新结果
      */
     #updatedSingleResult() {
-        // プレイヤーの索引を削除
+        // Delete player index / 删除玩家索引
         this.#player_index_singleresult = {};
 
-        // 特定のメソッドを持っている場合はteams要素をクリアする
+        // Clear teams element if has specific method / 如果具有特定方法则清除teams元素
         for (const overlay of Object.values(this.#overlays)) {
             if ('sortTeamSingleResultPlacement' in overlay && typeof(overlay.sortTeamSingleResultPlacement) == 'function') {
                 overlay.clear();
@@ -1885,10 +1904,10 @@ export class TemplateOverlayHandler extends EventTarget {
                     damage_dealt += player.damage_dealt;
                     damage_taken += player.damage_taken;
                 }
-                this.#updatedTeamSingleResultDamage(teamid, damage_dealt, damage_taken);
+                    this.#updatedTeamSingleResultDamage(teamid, damage_dealt, damage_taken);
 
-                // teamresultに格納
-                const teamresult = teamresults[teamidstr];
+                    // Store in teamresult / 存储到teamresult
+                    const teamresult = teamresults[teamidstr];
                 if (teamresult) {
                     teamresult.points.push(points.total);
                     teamresult.kill_points.push(points.kills);
@@ -1899,7 +1918,7 @@ export class TemplateOverlayHandler extends EventTarget {
             }
         }
 
-        // 順位計算
+        // Calculate rank / 计算排名
         setRankParameterToTeamResults(teamresults);
         for (const [teamidstr, team] of Object.entries(teamresults)) {
             const teamid = parseInt(teamidstr, 10);
@@ -1914,13 +1933,13 @@ export class TemplateOverlayHandler extends EventTarget {
     }
 
     /**
-     * 合算リザルトのプレイヤーパラメータを処理する
+     * Process player parameters for combined result / 处理合计结果的玩家参数
      */
     #updatedTotalResultPlayers() {
-        // プレイヤーの索引を削除
+        // Delete player index / 删除玩家索引
         this.#player_index_totalresult = {};
 
-        // 特定のメソッドを持っている場合はteams要素をクリアする
+        // Clear teams element if has specific method / 如果具有特定方法则清除teams元素
         for (const overlay of Object.values(this.#overlays)) {
             if ('sortTeamTotalResultPlacement' in overlay && typeof(overlay.sortTeamTotalResultPlacement) == 'function') {
                 overlay.clear();
@@ -1959,7 +1978,7 @@ export class TemplateOverlayHandler extends EventTarget {
                         const hash = player.id;
                         player.teamid = teamid;
                         if (!(hash in this.#player_index_totalresult)) {
-                            // 初期化
+                            // Initialize / 初始化
                             this.#player_index_totalresult[hash] = {
                                 id: hash,
                                 name: [],
@@ -2021,9 +2040,9 @@ export class TemplateOverlayHandler extends EventTarget {
     }
 
     /**
-     * 保存されたチーム用paramsや現在プレイ中のチーム情報から名前を取得する
-     * @param {string|number} teamid チームID(0～)
-     * @returns {string} チーム名
+     * Get name from saved team params or current playing team info / 从保存的团队参数或当前游戏团队信息获取名称
+     * @param {string|number} teamid Team ID (0~) / 团队ID(0~)
+     * @returns {string} Team name / 团队名称
      */
     #getTeamName(teamid) {
         teamid = parseInt(teamid, 10);
@@ -2040,7 +2059,7 @@ export class TemplateOverlayHandler extends EventTarget {
                 return team.name.replace(/@[0-9]+$/, '');
             }
         }
-        // リザルトからチーム名取得
+        // Get team name from result / 从结果获取团队名称
         for (let i = this.#results.length - 1; i >= 0; i--) {
             const result = this.#results[i];
             if ('teams' in result && teamid in result.teams) {
@@ -2050,25 +2069,25 @@ export class TemplateOverlayHandler extends EventTarget {
                 }
             }
         }
-        return "チーム " + teamid;
+        return "Team " + teamid;
     }
 
     /**
-     * 保存されたプレイヤー用prams等からプレイヤー情報を取得する
-     * @param {string} playerhash プレイヤーID(ハッシュ)
-     * @param {string} fallback 存在しない場合の代替名
-     * @returns {string} プレイヤー名
+     * Get player info from saved player params / 从保存的玩家参数获取玩家信息
+     * @param {string} playerhash Player ID (hash) / 玩家ID(哈希)
+     * @param {string} fallback Fallback name if not exists / 不存在时的备用名称
+     * @returns {string} Player name / 玩家名称
      */
     #getPlayerName(hash, fallback = '') {
         if (hash == '') return fallback;
 
-        // 保存されているパラメータ
+        // Saved parameters / 保存的参数
         if (hash in this.#player_params) {
             const params = this.#player_params[hash];
             if ('name' in params) return params.name;
         }
 
-        // ゲーム内の名前
+        // In-game name / 游戏内名称
         if (hash in this.#player_index) {
             const player = this.#player_index[hash];
             if ('name' in player) return player.name;

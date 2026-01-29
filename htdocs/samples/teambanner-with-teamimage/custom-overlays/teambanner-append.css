@@ -12,6 +12,7 @@
     background-image: url('team-images/team-default.png');
 }
 
-.teamimage[data-camera-team-name="カスタムチーム１"] {
+/* Example: Team 1 / 示例：队伍1 */
+.teamimage[data-camera-team-name="Team01"] {
     background-image: url('team-images/team-01.png');
 }

@@ -1,4 +1,4 @@
-﻿#include "main_window.hpp"
+#include "main_window.hpp"
 
 #include "resource.hpp"
 
@@ -10,7 +10,7 @@ namespace {
 		std::vector<WCHAR> buf(32767, L'\0');
 		std::wstring r = L"";
 
-		// モジュールインスタンスからDLLパスを取得
+		// Get DLL path from module instance / 从模块实例获取DLL路径
 		auto loaded = ::GetModuleFileNameW(::GetModuleHandleW(nullptr), buf.data(), buf.size());
 
 		for (DWORD i = loaded - 1; i != 0; --i)
@@ -24,7 +24,7 @@ namespace {
 
 		r.reserve(loaded + 10);
 
-		// パスの合成
+		// Combine path / 合成路径
 		r += buf.data();
 		r += L"\\htdocs";
 
@@ -139,7 +139,7 @@ namespace app
 								corewebview.query_to(&webview_);
 							}
 
-							// WebViewの基本設定
+							// WebView basic settings / WebView基本设置
 							wil::com_ptr<ICoreWebView2Settings> settings;
 							webview_->get_Settings(&settings);
 							settings->put_IsScriptEnabled(TRUE);
@@ -147,7 +147,7 @@ namespace app
 							settings->put_IsWebMessageEnabled(TRUE);
 							settings->put_AreDevToolsEnabled(FALSE);
 							
-							// 特定のホスト名をディレクトリにマッピングする
+							// Map specific hostname to directory / 将特定主机名映射到目录
 							webview3_ = corewebview.try_query<ICoreWebView2_3>();
 							if (webview3_)
 							{
@@ -156,7 +156,7 @@ namespace app
 									COREWEBVIEW2_HOST_RESOURCE_ACCESS_KIND_DENY_CORS);
 							}
 
-							// 新しいウィンドウを開かない
+							// Don't open new window / 不打开新窗口
 							webview_->add_NewWindowRequested(
 								Callback<ICoreWebView2NewWindowRequestedEventHandler>(
 									[this](ICoreWebView2* sender, ICoreWebView2NewWindowRequestedEventArgs* args)
@@ -166,12 +166,12 @@ namespace app
 									}).Get(), &token_newwindowrequested_
 							);
 
-							// サイズを合わせる
+							// Adjust size / 调整大小
 							RECT bounds;
 							::GetClientRect(window_, &bounds);
 							webview_ctrl_->put_Bounds(bounds);
 
-							// 管理画面を開く
+							// Open admin panel / 打开管理面板
 							webview_->Navigate(L"http://webapi-config.example/index.html");
 
 							return S_OK;
@@ -216,13 +216,13 @@ namespace app
 	{
 		if (_message == WM_NCCREATE)
 		{
-			// createwindowで指定したポイントからインスタンスを取得
+			// Get instance from pointer specified in createwindow / 从createwindow指定的指针获取实例
 			auto cs = reinterpret_cast<CREATESTRUCTW*>(_lparam);
 			auto instance = reinterpret_cast<main_window*>(cs->lpCreateParams);
 
 			instance->window_ = _window;
 
-			// USERDATAにポインタ格納
+			// Store pointer in USERDATA / 将指针存储到USERDATA
 			::SetWindowLongPtrW(_window, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(instance));
 		}
 		else if(_message == WM_GETMINMAXINFO)
@@ -233,7 +233,7 @@ namespace app
 			return 0;
 		}
 
-		// 既にデータが格納されていたらインスタンスのプロシージャを呼び出す
+		// Call instance procedure if data is already stored / 如果数据已存储则调用实例过程
 		if (auto ptr = reinterpret_cast<main_window*>(::GetWindowLongPtrW(_window, GWLP_USERDATA)))
 		{
 			return ptr->window_proc(_message, _wparam, _lparam);

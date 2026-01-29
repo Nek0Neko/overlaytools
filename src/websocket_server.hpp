@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "common.hpp"
 
@@ -15,6 +15,15 @@ namespace app {
 
 	constexpr UINT WS_TCP_RECV = 1001;
 	constexpr UINT WS_TCP_SEND = 1002;
+
+	// Security constants
+	namespace ws_security {
+		constexpr size_t MAX_MESSAGE_SIZE = 1024 * 1024;  // 1MB max message size
+		constexpr size_t MAX_CONNECTIONS_PER_IP = 10;     // Max connections per IP
+		constexpr uint64_t CONNECTION_TIMEOUT_MS = 30000; // 30 second connection timeout
+		constexpr uint64_t RATE_LIMIT_WINDOW_MS = 1000;   // 1 second rate limit window
+		constexpr size_t MAX_MESSAGES_PER_WINDOW = 100;   // Max messages per window
+	}
 
 	struct WS_ACCEPT_CONTEXT {
 		WSAOVERLAPPED ov;
@@ -71,7 +80,26 @@ namespace app {
 		WS_IO_CONTEXT ior_ctx;
 		WS_IO_CONTEXT iow_ctx;
 		std::queue<std::shared_ptr<std::vector<uint8_t>>> wq;
-		wsconn_t() : sock(INVALID_SOCKET), handshake(false), packet(nullptr), buffer(nullptr) {};
+		
+		// Security: Rate limiting
+		uint64_t last_message_time;
+		size_t message_count;
+		uint64_t connection_time;
+		std::wstring remote_ip;
+		
+		wsconn_t() : sock(INVALID_SOCKET), handshake(false), packet(nullptr), buffer(nullptr),
+		             last_message_time(0), message_count(0), connection_time(0) {};
+		
+		// Check if message rate limit exceeded
+		bool check_rate_limit(uint64_t current_time) {
+			if (current_time - last_message_time > ws_security::RATE_LIMIT_WINDOW_MS) {
+				last_message_time = current_time;
+				message_count = 1;
+				return true;
+			}
+			message_count++;
+			return message_count <= ws_security::MAX_MESSAGES_PER_WINDOW;
+		}
 	};
 
 	class websocket_server {

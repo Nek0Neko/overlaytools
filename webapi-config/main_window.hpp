@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "common.hpp"
 
@@ -31,10 +31,10 @@ namespace app
 		main_window(HINSTANCE);
 		~main_window();
 
-		// コピー不可
+		// Non-copyable / 禁止复制
 		main_window(const main_window&) = delete;
 		main_window& operator = (const main_window&) = delete;
-		// ムーブ不可
+		// Non-movable / 禁止移动
 		main_window(main_window&&) = delete;
 		main_window& operator = (main_window&&) = delete;
 

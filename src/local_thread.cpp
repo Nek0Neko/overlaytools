@@ -1,4 +1,4 @@
-﻿#include "local_thread.hpp"
+#include "local_thread.hpp"
 
 #include "log.hpp"
 
@@ -406,7 +406,7 @@ namespace app {
 			}
 		}
 
-		// 一致するものがなかった場合、新規作成
+		// If no match was found, create new / 如果没有找到匹配项，则创建新的
 		std::string newid;
 		do
 		{
@@ -532,7 +532,7 @@ namespace app {
 			if (!std::regex_match(filename, re)) continue;
 			auto hash = ws_to_s(filename.substr(0, 32));
 
-			// jsonの中身があったら取得
+			// If json has content, retrieve it / 如果json有内容则获取
 			try
 			{
 				std::ifstream s(entry.path());
@@ -652,8 +652,8 @@ namespace app {
 			auto id = ::WaitForMultipleObjects(ARRAYSIZE(events), events, FALSE, INFINITE);
 			if (id == WAIT_OBJECT_0)
 			{
-				// 終了
-				log(logid_, L"Info: receive close event.");
+			// Exit / 退出
+			log(logid_, L"Info: receive close event.");
 				break;
 			}
 			else if (id == WAIT_OBJECT_0 + 1)
@@ -664,7 +664,7 @@ namespace app {
 				{
 					if (q.empty()) break;
 
-					// データ取り出し
+					// Extract data / 提取数据
 					auto data = std::move(q.front());
 					q.pop();
 
@@ -689,7 +689,7 @@ namespace app {
 		local_queue_data_t d(new local_queue_data());
 		if (_data->data_type == LOCAL_DATA_TYPE_NONE) return;
 
-		// 基本情報
+		// Basic information / 基本信息
 		d->data_type = _data->data_type;
 		d->sock = _data->sock;
 		d->sequence = _data->sequence;
@@ -709,14 +709,14 @@ namespace app {
 			}
 			else
 			{
-				d->json.reset(new std::string("{}"));
+				d->json = std::make_unique<std::string>("{}");
 				d->result = false;
 			}
 			break;
 		case LOCAL_DATA_TYPE_GET_CONFIG:
 			log(logid_, L"Info: proc LOCAL_DATA_TYPE_GET_CONFIG event.");
 			d->slot = _data->slot;
-			d->json.reset(new std::string(load_config_json(_data->slot)));
+			d->json = std::make_unique<std::string>(load_config_json(_data->slot)));
 			break;
 		case LOCAL_DATA_TYPE_SET_OBSERVER:
 			if (_data->hash != "")
@@ -727,7 +727,7 @@ namespace app {
 					{"hash", d->hash}
 				};
 
-				// データの保存
+				// Save data / 保存数据
 				try
 				{
 					std::ofstream s(path_ + L"\\observers\\index.json");
@@ -820,7 +820,7 @@ namespace app {
 					j["rings"].push_back(ring_json);
 				}
 
-				// データの保存
+				// Save data / 保存数据
 				auto count = tournament_.count_results();
 				if (!tournament_.save_result_json(count, j.dump(2)))
 				{
@@ -828,14 +828,14 @@ namespace app {
 				}
 				d->tournament_id = tournament_.get_current_id();
 				d->game_id = count;
-				d->json.reset(new std::string(j.dump()));
+				d->json = std::make_unique<std::string>(j.dump()));
 			}
 			break;
 		}
 		case LOCAL_DATA_TYPE_GET_TOURNAMENT_IDS:
 			log(logid_, L"Info: proc LOCAL_DATA_TYPE_GET_TOURNAMENT_IDS event.");
 			d->tournament_id = tournament_.get_current_id();
-			d->json.reset(new std::string(tournament_.load_ids_json()));
+			d->json = std::make_unique<std::string>(tournament_.load_ids_json()));
 			break;
 		case LOCAL_DATA_TYPE_SET_TOURNAMENT_NAME:
 			log(logid_, L"Info: proc LOCAL_DATA_TYPE_SET_TOURNAMENT_NAME event.");
@@ -858,19 +858,19 @@ namespace app {
 			}
 			else
 			{
-				d->json.reset(new std::string("{}"));
+				d->json = std::make_unique<std::string>("{}");
 				d->result = false;
 			}
 			break;
 		case LOCAL_DATA_TYPE_GET_TOURNAMENT_PARAMS:
 			log(logid_, L"Info: proc LOCAL_DATA_TYPE_GET_TOURNAMENT_PARAMS event.");
 			d->tournament_id = tournament_.get_current_id();
-			d->json.reset(new std::string(tournament_.load_tournament_json()));
+			d->json = std::make_unique<std::string>(tournament_.load_tournament_json()));
 			break;
 		case LOCAL_DATA_TYPE_GET_TOURNAMENT_RESULTS:
 			log(logid_, L"Info: proc LOCAL_DATA_TYPE_GET_TOURNAMENT_RESULTS event.");
 			d->tournament_id = tournament_.get_current_id();
-			d->json.reset(new std::string(tournament_.load_results_json()));
+			d->json = std::make_unique<std::string>(tournament_.load_results_json()));
 			break;
 		case LOCAL_DATA_TYPE_SET_TOURNAMENT_RESULT:
 			log(logid_, L"Info: proc LOCAL_DATA_TYPE_SET_TOURNAMENT_RESULT event.");
@@ -883,7 +883,7 @@ namespace app {
 			}
 			else
 			{
-				d->json.reset(new std::string("{}"));
+				d->json = std::make_unique<std::string>("{}");
 				d->result = false;
 			}
 			break;
@@ -891,7 +891,7 @@ namespace app {
 			log(logid_, L"Info: proc LOCAL_DATA_TYPE_GET_TOURNAMENT_RESULT event.");
 			d->tournament_id = tournament_.get_current_id();
 			d->game_id = _data->game_id;
-			d->json.reset(new std::string(tournament_.load_result_json(_data->game_id)));
+			d->json = std::make_unique<std::string>(tournament_.load_result_json(_data->game_id)));
 			break;
 		case LOCAL_DATA_TYPE_GET_CURRENT_TOURNAMENT:
 			log(logid_, L"Info: proc LOCAL_DATA_TYPE_GET_CURRENT_TOURNAMENT event.");
@@ -910,7 +910,7 @@ namespace app {
 			}
 			else
 			{
-				d->json.reset(new std::string("{}"));
+				d->json = std::make_unique<std::string>("{}");
 				d->result = false;
 			}
 			break;
@@ -918,7 +918,7 @@ namespace app {
 			log(logid_, L"Info: proc LOCAL_DATA_TYPE_GET_TEAM_PARAMS event.");
 			d->tournament_id = tournament_.get_current_id();
 			d->team_id = _data->team_id;
-			d->json.reset(new std::string(tournament_.load_team_json(_data->team_id)));
+			d->json = std::make_unique<std::string>(tournament_.load_team_json(_data->team_id)));
 			break;
 		case LOCAL_DATA_TYPE_SET_PLAYER_PARAMS:
 			log(logid_, L"Info: proc LOCAL_DATA_TYPE_SET_PLAYER_PARAMS event.");
@@ -931,7 +931,7 @@ namespace app {
 			}
 			else
 			{
-				d->json.reset(new std::string("{}"));
+				d->json = std::make_unique<std::string>("{}");
 				d->result = false;
 			}
 			break;
@@ -940,14 +940,14 @@ namespace app {
 			log(logid_, L"Info: proc LOCAL_DATA_TYPE_GET_PLAYER_PARAMS event.");
 			local_players p(path_);
 			d->hash = _data->hash;
-			d->json.reset(new std::string(p.load_player_json(_data->hash)));
+			d->json = std::make_unique<std::string>(p.load_player_json(_data->hash)));
 			break;
 		}
 		case LOCAL_DATA_TYPE_GET_PLAYERS:
 		{
 			log(logid_, L"Info: proc LOCAL_DATA_TYPE_GET_PLAYERS event.");
 			local_players p(path_);
-			d->json.reset(new std::string(p.load_players()));
+			d->json = std::make_unique<std::string>(p.load_players()));
 			break;
 		}
 		case LOCAL_DATA_TYPE_SET_LIVEAPI_CONFIG:
@@ -959,17 +959,17 @@ namespace app {
 			}
 			else
 			{
-				d->json.reset(new std::string("{}"));
+				d->json = std::make_unique<std::string>("{}");
 				d->result = false;
 			}
 			break;
 		case LOCAL_DATA_TYPE_GET_LIVEAPI_CONFIG:
 			log(logid_, L"Info: proc LOCAL_DATA_TYPE_GET_LIVEAPI_CONFIG event.");
-			d->json.reset(new std::string(liveapi_config_.load()));
+			d->json = std::make_unique<std::string>(liveapi_config_.load()));
 			break;
 		}
 
-		// wqに返す
+		// Return to wq / 返回到wq
 		push_wq(std::move(d));
 	}
 
@@ -1066,10 +1066,10 @@ namespace app {
 
 	bool local_thread::run(HWND _window)
 	{
-		// Window設定
+		// Window setting / 窗口设置
 		window_ = _window;
 
-		// イベント作成
+		// Create events / 创建事件
 		event_close_ = ::CreateEventW(NULL, FALSE, FALSE, NULL);
 		if (event_close_ == NULL)
 		{
@@ -1089,7 +1089,7 @@ namespace app {
 			return false;
 		}
 
-		// スレッド起動
+		// Start thread / 启动线程
 		thread_ = ::CreateThread(NULL, 0, proc_common, this, 0, NULL);
 		return thread_ != NULL;
 
@@ -1098,7 +1098,7 @@ namespace app {
 
 	void local_thread::stop()
 	{
-		// スレッドの停止
+		// Stop thread / 停止线程
 		if (thread_ != NULL)
 		{
 			::SetEvent(event_close_);
@@ -1119,7 +1119,7 @@ namespace app {
 		d->sock = _sock;
 		d->sequence = _sequence;
 		d->slot = _slot;
-		d->json.reset(new std::string(_json));
+		d->json = std::make_unique<std::string>(_json));
 		push_rq(std::move(d));
 	}
 
@@ -1197,7 +1197,7 @@ namespace app {
 		d->data_type = LOCAL_DATA_TYPE_SET_TOURNAMENT_PARAMS;
 		d->sock = _sock;
 		d->sequence = _sequence;
-		d->json.reset(new std::string(_json));
+		d->json = std::make_unique<std::string>(_json));
 		push_rq(std::move(d));
 	}
 
@@ -1217,7 +1217,7 @@ namespace app {
 		d->sock = _sock;
 		d->sequence = _sequence;
 		d->game_id = _gameid;
-		d->json.reset(new std::string(_json));
+		d->json = std::make_unique<std::string>(_json));
 		push_rq(std::move(d));
 	}
 
@@ -1256,7 +1256,7 @@ namespace app {
 		d->sock = _sock;
 		d->sequence = _sequence;
 		d->team_id = _teamid;
-		d->json.reset(new std::string(_json));
+		d->json = std::make_unique<std::string>(_json));
 		push_rq(std::move(d));
 	}
 
@@ -1277,7 +1277,7 @@ namespace app {
 		d->sock = _sock;
 		d->sequence = _sequence;
 		d->hash = _hash;
-		d->json.reset(new std::string(_json));
+		d->json = std::make_unique<std::string>(_json));
 		push_rq(std::move(d));
 	}
 
@@ -1314,7 +1314,7 @@ namespace app {
 		d->data_type = LOCAL_DATA_TYPE_SET_LIVEAPI_CONFIG;
 		d->sock = _sock;
 		d->sequence = _sequence;
-		d->json.reset(new std::string(_json));
+		d->json = std::make_unique<std::string>(_json));
 		push_rq(std::move(d));
 	}
 

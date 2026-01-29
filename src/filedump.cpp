@@ -1,4 +1,4 @@
-﻿#include "filedump.hpp"
+#include "filedump.hpp"
 
 #include "utils.hpp"
 
@@ -9,7 +9,7 @@ namespace {
 
 	std::wstring get_timestring()
 	{
-		// 日付・時刻を取得する
+		// Get date and time / 获取日期和时间
 		std::time_t t = std::time(nullptr);
 		std::tm tm;
 		errno_t error;
@@ -122,7 +122,7 @@ namespace app {
 						q_.pop();
 					}
 				}
-				// 書き込み
+				// Write / 写入
 				while (q.size() > 0)
 				{
 					auto data = std::move(q.front());
@@ -133,7 +133,7 @@ namespace app {
 
 					DWORD wsize = 0;
 
-					// データのサイズとタイムスタンプを書き込む
+					// Write data size and timestamp / 写入数据大小和时间戳
 					DWORD dsize = data->size();
 					if (!::WriteFile(file, &dsize, sizeof(dsize), &wsize, NULL))
 					{
@@ -142,8 +142,8 @@ namespace app {
 					}
 					total += sizeof(dsize);
 
-					// タイムスタンプを書き込む
-					uint64_t ms = ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+				// Write timestamp / 写入时间戳
+				uint64_t ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 					if (!::WriteFile(file, &ms, sizeof(ms), &wsize, NULL))
 					{
 						close = true;
@@ -151,7 +151,7 @@ namespace app {
 					}
 					total += sizeof(ms);
 
-					// データを書き込む
+					// Write data / 写入数据
 					if (!::WriteFile(file, data->data(), data->size(), &wsize, NULL))
 					{
 						close = true;
@@ -159,18 +159,18 @@ namespace app {
 					}
 					total += data->size();
 
-					// カウントアップ
+					// Increment count / 计数增加
 					++count;
 				}
 			}
 
-			// ファイルのクローズ処理
+			// File close processing / 文件关闭处理
 			if (close || reset)
 			{
-				// 先頭にシーク
+				// Seek to beginning / 跳转到开头
 				if(::SetFilePointer(file, 0, NULL, FILE_BEGIN) == INVALID_SET_FILE_POINTER) break;
 
-				// データを書き込み
+				// Write data / 写入数据
 				DWORD wsize = 0;
 				if (!::WriteFile(file, &count, sizeof(count), &wsize, NULL)) break;
 				if (!::WriteFile(file, &total, sizeof(total), &wsize, NULL)) break;
@@ -192,7 +192,7 @@ namespace app {
 
 	bool filedump::run()
 	{
-		// イベント作成
+		// Create events / 创建事件
 		event_close_ = ::CreateEventW(NULL, FALSE, FALSE, NULL);
 		if (event_close_ == NULL) return false;
 		event_reset_ = ::CreateEventW(NULL, FALSE, FALSE, NULL);
@@ -200,7 +200,7 @@ namespace app {
 		event_push_ = ::CreateEventW(NULL, FALSE, FALSE, NULL);
 		if (event_push_ == NULL) return false;
 
-		// スレッド起動
+		// Start thread / 启动线程
 		thread_ = ::CreateThread(NULL, 0, proc_common, this, 0, NULL);
 		return thread_ != NULL;
 	}
@@ -226,7 +226,7 @@ namespace app {
 
 	void filedump::stop()
 	{
-		// スレッドの停止
+		// Stop thread / 停止线程
 		if (thread_ != NULL)
 		{
 			::SetEvent(event_close_);
