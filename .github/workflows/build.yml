@@ -1,0 +1,78 @@
+name: Build
+
+on:
+  push:
+    branches: [ main, master ]
+    paths-ignore:
+      - '**.md'
+      - 'LICENSE'
+  pull_request:
+    branches: [ main, master ]
+    paths-ignore:
+      - '**.md'
+      - 'LICENSE'
+
+env:
+  SOLUTION_FILE: apexliveapi_proxy.sln
+  BUILD_CONFIGURATION: Release
+  BUILD_PLATFORM: x64
+
+jobs:
+  build-cpp:
+    runs-on: windows-latest
+    name: Build C++ Project
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Restore NuGet packages
+        run: nuget restore ${{ env.SOLUTION_FILE }}
+
+      - name: Build
+        run: |
+          msbuild ${{ env.SOLUTION_FILE }} /p:Configuration=${{ env.BUILD_CONFIGURATION }} /p:Platform=${{ env.BUILD_PLATFORM }}
+
+      - name: Upload executable
+        uses: actions/upload-artifact@v4
+        with:
+          name: apexliveapi_proxy
+          path: x64/Release/apexliveapi_proxy.exe
+          if-no-files-found: error
+
+  build-vue:
+    runs-on: ubuntu-latest
+    name: Build Vue Admin Panel
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: htdocs/admin/package-lock.json
+
+      - name: Install dependencies
+        working-directory: htdocs/admin
+        run: npm ci
+
+      - name: Type check
+        working-directory: htdocs/admin
+        run: npx vue-tsc --noEmit
+
+      - name: Build
+        working-directory: htdocs/admin
+        run: npm run build
+
+      - name: Upload dist
+        uses: actions/upload-artifact@v4
+        with:
+          name: vue-admin-dist
+          path: htdocs/dist
+          if-no-files-found: error

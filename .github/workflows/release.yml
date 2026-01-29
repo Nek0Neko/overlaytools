@@ -1,0 +1,119 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., 1.0.0)'
+        required: false
+        default: ''
+
+env:
+  SOLUTION_FILE: apexliveapi_proxy.sln
+  BUILD_CONFIGURATION: Release
+  BUILD_PLATFORM: x64
+
+jobs:
+  build:
+    runs-on: windows-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: htdocs/admin/package-lock.json
+
+      - name: Restore NuGet packages
+        run: nuget restore ${{ env.SOLUTION_FILE }}
+
+      - name: Build C++ Project
+        run: |
+          msbuild ${{ env.SOLUTION_FILE }} /p:Configuration=${{ env.BUILD_CONFIGURATION }} /p:Platform=${{ env.BUILD_PLATFORM }}
+
+      - name: Build Vue Admin Panel
+        working-directory: htdocs/admin
+        run: |
+          npm ci
+          npm run build
+
+      - name: Get version
+        id: version
+        shell: bash
+        run: |
+          if [ -n "${{ github.event.inputs.version }}" ]; then
+            echo "version=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.ref }}" == refs/tags/v* ]]; then
+            echo "version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+          else
+            VERSION=$(cat htdocs/version.json | grep -o '"version"[[:space:]]*:[[:space:]]*"[^"]*"' | cut -d'"' -f4)
+            echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create release package
+        shell: bash
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          RELEASE_NAME="overlaytools-${VERSION}"
+          
+          # Create release directory
+          mkdir -p "release/${RELEASE_NAME}/htdocs"
+          
+          # Copy executable
+          if [ -f "x64/Release/apexliveapi_proxy.exe" ]; then
+            cp "x64/Release/apexliveapi_proxy.exe" "release/${RELEASE_NAME}/"
+          fi
+          
+          if [ -f "x64/Release/dump2json.exe" ]; then
+            cp "x64/Release/dump2json.exe" "release/${RELEASE_NAME}/"
+          fi
+          
+          # Copy htdocs files
+          cp htdocs/*.html "release/${RELEASE_NAME}/htdocs/" 2>/dev/null || true
+          cp htdocs/*.js "release/${RELEASE_NAME}/htdocs/" 2>/dev/null || true
+          cp htdocs/*.css "release/${RELEASE_NAME}/htdocs/" 2>/dev/null || true
+          cp htdocs/*.json "release/${RELEASE_NAME}/htdocs/" 2>/dev/null || true
+          
+          # Copy directories
+          [ -d "htdocs/dist" ] && cp -r htdocs/dist "release/${RELEASE_NAME}/htdocs/"
+          [ -d "htdocs/overlays" ] && cp -r htdocs/overlays "release/${RELEASE_NAME}/htdocs/"
+          [ -d "htdocs/custom-overlays" ] && cp -r htdocs/custom-overlays "release/${RELEASE_NAME}/htdocs/"
+          [ -d "htdocs/samples" ] && cp -r htdocs/samples "release/${RELEASE_NAME}/htdocs/"
+          
+          # Copy documentation
+          cp LICENSE "release/${RELEASE_NAME}/" 2>/dev/null || true
+          cp README.md "release/${RELEASE_NAME}/" 2>/dev/null || true
+          
+          # Create zip
+          cd release
+          7z a -tzip "${RELEASE_NAME}.zip" "${RELEASE_NAME}"
+          
+          echo "RELEASE_FILE=release/${RELEASE_NAME}.zip" >> $GITHUB_ENV
+          echo "RELEASE_NAME=${RELEASE_NAME}" >> $GITHUB_ENV
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.RELEASE_NAME }}
+          path: release/${{ env.RELEASE_NAME }}.zip
+
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release/${{ env.RELEASE_NAME }}.zip
+          generate_release_notes: true
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

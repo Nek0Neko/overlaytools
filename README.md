@@ -127,6 +127,46 @@ npm run build
 
 构建输出将生成到 `htdocs/dist/` 目录。
 
+### 打包发布
+
+项目提供了打包脚本，用于创建发布版本：
+
+**Windows:**
+```batch
+pack.bat
+```
+
+**macOS/Linux:**
+```bash
+./pack.sh
+```
+
+打包脚本会自动：
+1. 构建 Vue 管理面板
+2. 复制必要文件到 `release/` 目录
+3. 创建 zip 压缩包
+
+> 注意：打包前请先使用 Visual Studio 编译 C++ 项目。
+
+### GitHub Actions 自动发布
+
+项目配置了 GitHub Actions 工作流，支持自动构建和发布：
+
+**自动触发：** 推送以 `v` 开头的 tag 时自动构建并创建 Release
+
+```bash
+git tag v1.0.0
+git push origin v1.0.0
+```
+
+**手动触发：** 在 GitHub Actions 页面手动运行 "Build and Release" 工作流
+
+工作流会自动：
+1. 编译 C++ 项目 (Windows x64)
+2. 构建 Vue 管理面板
+3. 打包所有文件
+4. 创建 GitHub Release 并上传压缩包
+
 ## 自定义叠加层
 
 ### 修改样式
