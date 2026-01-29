@@ -29,14 +29,16 @@ jobs:
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
 
-      - name: Setup vcpkg
-        uses: lukka/run-vcpkg@v11
-        with:
-          vcpkgGitCommitId: '67bb7079ee5dce97ab5b307a8e4e00084e55b0e0'
-
-      - name: Install C++ dependencies
+      - name: Install C++ dependencies via vcpkg
         run: |
-          vcpkg install protobuf:x64-windows-static nlohmann-json:x64-windows-static
+          # Use the pre-installed vcpkg on GitHub runners
+          $env:VCPKG_ROOT = "C:\vcpkg"
+          cd C:\vcpkg
+          git pull
+          .\bootstrap-vcpkg.bat
+          .\vcpkg integrate install
+          .\vcpkg install protobuf:x64-windows-static nlohmann-json:x64-windows-static
+          echo "VCPKG_ROOT=C:\vcpkg" >> $env:GITHUB_ENV
 
       - name: Restore NuGet packages
         run: nuget restore ${{ env.SOLUTION_FILE }}
