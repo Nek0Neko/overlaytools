@@ -27,6 +27,16 @@ jobs:
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
 
+      - name: Setup vcpkg
+        uses: lukka/run-vcpkg@v11
+        with:
+          vcpkgGitCommitId: '67bb7079ee5dce97ab5b307a8e4e00084e55b0e0'
+
+      - name: Install C++ dependencies
+        run: |
+          vcpkg install protobuf:x64-windows-static nlohmann-json:x64-windows-static
+          echo "VCPKG_ROOT=$env:VCPKG_ROOT" >> $env:GITHUB_ENV
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -37,9 +47,16 @@ jobs:
       - name: Restore NuGet packages
         run: nuget restore ${{ env.SOLUTION_FILE }}
 
+      - name: Create include directory
+        shell: bash
+        run: |
+          mkdir -p include
+          cp -r "$VCPKG_ROOT/installed/x64-windows-static/include/google" include/ || true
+          cp -r "$VCPKG_ROOT/installed/x64-windows-static/include/nlohmann" include/ || true
+
       - name: Build C++ Project
         run: |
-          msbuild ${{ env.SOLUTION_FILE }} /p:Configuration=${{ env.BUILD_CONFIGURATION }} /p:Platform=${{ env.BUILD_PLATFORM }}
+          msbuild ${{ env.SOLUTION_FILE }} /p:Configuration=${{ env.BUILD_CONFIGURATION }} /p:Platform=${{ env.BUILD_PLATFORM }} /p:VcpkgEnableManifest=false
 
       - name: Build Vue Admin Panel
         working-directory: htdocs/admin

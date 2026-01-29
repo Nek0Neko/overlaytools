@@ -29,12 +29,28 @@ jobs:
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
 
+      - name: Setup vcpkg
+        uses: lukka/run-vcpkg@v11
+        with:
+          vcpkgGitCommitId: '67bb7079ee5dce97ab5b307a8e4e00084e55b0e0'
+
+      - name: Install C++ dependencies
+        run: |
+          vcpkg install protobuf:x64-windows-static nlohmann-json:x64-windows-static
+
       - name: Restore NuGet packages
         run: nuget restore ${{ env.SOLUTION_FILE }}
 
+      - name: Create include directory
+        shell: bash
+        run: |
+          mkdir -p include
+          cp -r "$VCPKG_ROOT/installed/x64-windows-static/include/google" include/ || true
+          cp -r "$VCPKG_ROOT/installed/x64-windows-static/include/nlohmann" include/ || true
+
       - name: Build
         run: |
-          msbuild ${{ env.SOLUTION_FILE }} /p:Configuration=${{ env.BUILD_CONFIGURATION }} /p:Platform=${{ env.BUILD_PLATFORM }}
+          msbuild ${{ env.SOLUTION_FILE }} /p:Configuration=${{ env.BUILD_CONFIGURATION }} /p:Platform=${{ env.BUILD_PLATFORM }} /p:VcpkgEnableManifest=false
 
       - name: Upload executable
         uses: actions/upload-artifact@v4
