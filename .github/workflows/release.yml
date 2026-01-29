@@ -24,19 +24,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup MSBuild
-        uses: microsoft/setup-msbuild@v2
-
-      - name: Install C++ dependencies via vcpkg
-        run: |
-          # Use the pre-installed vcpkg on GitHub runners
-          $env:VCPKG_ROOT = "C:\vcpkg"
-          cd C:\vcpkg
-          git pull
-          .\bootstrap-vcpkg.bat
-          .\vcpkg integrate install
-          .\vcpkg install protobuf:x64-windows-static nlohmann-json:x64-windows-static
-          echo "VCPKG_ROOT=C:\vcpkg" >> $env:GITHUB_ENV
+      # Note: C++ build is skipped due to protobuf version compatibility issues
+      # The C++ executable should be built locally on Windows and added manually
+      # or uploaded as a separate artifact
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -44,20 +34,6 @@ jobs:
           node-version: '20'
           cache: 'npm'
           cache-dependency-path: htdocs/admin/package-lock.json
-
-      - name: Restore NuGet packages
-        run: nuget restore ${{ env.SOLUTION_FILE }}
-
-      - name: Create include directory
-        shell: bash
-        run: |
-          mkdir -p include
-          cp -r "$VCPKG_ROOT/installed/x64-windows-static/include/google" include/ || true
-          cp -r "$VCPKG_ROOT/installed/x64-windows-static/include/nlohmann" include/ || true
-
-      - name: Build C++ Project
-        run: |
-          msbuild ${{ env.SOLUTION_FILE }} /p:Configuration=${{ env.BUILD_CONFIGURATION }} /p:Platform=${{ env.BUILD_PLATFORM }} /p:VcpkgEnableManifest=false
 
       - name: Build Vue Admin Panel
         working-directory: htdocs/admin
@@ -82,19 +58,20 @@ jobs:
         shell: bash
         run: |
           VERSION="${{ steps.version.outputs.version }}"
-          RELEASE_NAME="overlaytools-${VERSION}"
+          RELEASE_NAME="overlaytools-${VERSION}-frontend"
           
           # Create release directory
           mkdir -p "release/${RELEASE_NAME}/htdocs"
           
-          # Copy executable
-          if [ -f "x64/Release/apexliveapi_proxy.exe" ]; then
-            cp "x64/Release/apexliveapi_proxy.exe" "release/${RELEASE_NAME}/"
-          fi
-          
-          if [ -f "x64/Release/dump2json.exe" ]; then
-            cp "x64/Release/dump2json.exe" "release/${RELEASE_NAME}/"
-          fi
+          # Note: C++ executables not included - build locally on Windows
+          # Create a README for the package
+          echo "# Overlaytools ${VERSION} - Frontend Package" > "release/${RELEASE_NAME}/BUILD_NOTE.md"
+          echo "" >> "release/${RELEASE_NAME}/BUILD_NOTE.md"
+          echo "This package contains only the frontend files (htdocs)." >> "release/${RELEASE_NAME}/BUILD_NOTE.md"
+          echo "" >> "release/${RELEASE_NAME}/BUILD_NOTE.md"
+          echo "To use this tool, you need to:" >> "release/${RELEASE_NAME}/BUILD_NOTE.md"
+          echo "1. Build apexliveapi_proxy.exe locally using Visual Studio on Windows" >> "release/${RELEASE_NAME}/BUILD_NOTE.md"
+          echo "2. Place the executable in the same directory as the htdocs folder" >> "release/${RELEASE_NAME}/BUILD_NOTE.md"
           
           # Copy htdocs files
           cp htdocs/*.html "release/${RELEASE_NAME}/htdocs/" 2>/dev/null || true
