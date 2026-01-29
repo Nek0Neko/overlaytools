@@ -84,12 +84,48 @@ Apex Legends 自定义比赛的实时数据叠加层工具，用于在直播/录
 overlaytools/
 ├── apexliveapi_proxy.exe    # 主程序
 ├── htdocs/                   # Web 资源目录
-│   ├── index.html           # 管理面板
+│   ├── index.html           # 原版管理面板
+│   ├── admin/               # 新版 Vue 管理面板源码
+│   ├── dist/                # 新版管理面板构建输出
 │   ├── overlays/            # 叠加层 HTML/CSS
 │   ├── custom-overlays/     # 自定义叠加层（可自行修改）
 │   └── samples/             # 自定义示例
 └── config.json              # 配置文件（首次运行后生成）
 ```
+
+## 开发说明
+
+### 新版管理面板 (Vue 3 + Element Plus)
+
+新版管理面板使用 Vue 3 + Element Plus 构建，提供更现代化的 UI 体验。
+
+**技术栈：**
+- Vue 3 (Composition API)
+- Element Plus (UI 组件库)
+- Pinia (状态管理)
+- Vue Router (路由)
+- Vue I18n (国际化)
+- TypeScript
+- Vite (构建工具)
+
+**开发模式：**
+
+```bash
+cd htdocs/admin
+npm install
+npm run dev
+```
+
+开发服务器将在 `http://localhost:3000` 启动。
+
+**生产构建：**
+
+```bash
+cd htdocs/admin
+npm run build
+```
+
+构建输出将生成到 `htdocs/dist/` 目录。
 
 ## 自定义叠加层
 
